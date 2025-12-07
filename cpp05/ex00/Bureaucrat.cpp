@@ -2,7 +2,7 @@
 
 Bureaucrat::Bureaucrat() :
 	_name("default"),
-	_grade(100)
+	_grade(MIN_GRADE)
 {
 }
 
