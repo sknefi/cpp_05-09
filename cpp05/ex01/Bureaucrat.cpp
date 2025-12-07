@@ -1,8 +1,9 @@
+#include "Form.hpp"
 #include "Bureaucrat.hpp"
 
 Bureaucrat::Bureaucrat() :
 	_name("default"),
-	_grade(100)
+	_grade(MIN_GRADE)
 {
 }
 
@@ -57,6 +58,24 @@ void	Bureaucrat::decrement()
 	if (_grade >= MIN_GRADE)
 		throw GradeTooLowException();
 	_grade++;
+}
+
+void	Bureaucrat::signForm( Form &form )
+{
+	if (form.get_is_signed())
+	{
+		std::cout << _name << " cannot sign Form " << form.get_name() << " because it is already signed." << std::endl;
+		return ;
+	}
+	try
+	{
+		form.beSigned(*this);
+		std::cout << _name << " signed Form " << form.get_name() << "." << std::endl;
+	}
+	catch (std::exception &e)
+	{
+		std::cout << _name << " cannot sign Form " << form.get_name() << " because " << e.what() << std::endl;
+	}
 }
 
 const char *Bureaucrat::GradeTooHighException::what() const throw()

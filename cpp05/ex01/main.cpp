@@ -1,56 +1,45 @@
 #include "Bureaucrat.hpp"
+#include "Form.hpp"
 
 int main()
 {
-	// Basic valid bureaucrat
 	try
 	{
-		Bureaucrat a("Alica", 42);
-		std::cout << a;
+		std::cout << "=== Valid signing ===" << std::endl;
+		Bureaucrat bob("Bob", 40);
+		Form      tax("Tax Form", 50, 25);
 
-		a.increment();
-		std::cout << "After increment: " << a.get_name()
-				  << " has grade " << a.get_grade() << std::endl;
-		a.decrement();
-		std::cout << "After decrement: " << a.get_name()
-		<< " has grade " << a.get_grade() << std::endl;
+		std::cout << bob;
+		std::cout << tax << std::endl;
 
+		bob.signForm(tax);
+		std::cout << tax << std::endl;
+
+		std::cout << "-----------------------------" << std::endl;
+
+		std::cout << "=== Too low grade to sign ===" << std::endl;
+		Bureaucrat jim("Jim", 120);
+		Form      secret("Top Secret", 10, 5);
+
+		std::cout << jim;
+		std::cout << secret << std::endl;
+
+		jim.signForm(secret);          // should fail and print why
+		std::cout << secret << std::endl;
+
+		std::cout << "-----------------------------" << std::endl;
+
+		std::cout << "=== Already signed form ===" << std::endl;
+		Bureaucrat alice("Alice", 30);
+		Form      contract("Contract", 50, 50);
+
+		alice.signForm(contract);      // first time: signs
+		alice.signForm(contract);      // second time: already signed
+		std::cout << contract << std::endl;
 	}
 	catch (const std::exception &e)
 	{
-		std::cout << "Exception: " << e.what() << std::endl;
-	}
-
-	std::cout << "-----------------------------" << std::endl;
-
-	// Test too high grade on increment
-	try
-	{
-		Bureaucrat high("High", MAX_GRADE);
-		std::cout << high;
-
-		std::cout << "Trying to increment " << high.get_name() << std::endl;
-		high.increment(); // should throw GradeTooHighException
-	}
-	catch (const std::exception &e)
-	{
-		std::cout << "Exception: " << e.what() << std::endl;
-	}
-
-	std::cout << "-----------------------------" << std::endl;
-
-	// Test too low grade on decrement
-	try
-	{
-		Bureaucrat low("Low", MIN_GRADE);
-		std::cout << low;
-
-		std::cout << "Trying to decrement " << low.get_name() << std::endl;
-		low.decrement(); // should throw GradeTooLowException
-	}
-	catch (const std::exception &e)
-	{
-		std::cout << "Exception: " << e.what() << std::endl;
+		std::cout << "Exception in main: " << e.what() << std::endl;
 	}
 
 	return (0);

@@ -8,6 +8,8 @@
 # define MAX_GRADE 1	// the best grade
 # define MIN_GRADE 150	// the worst grade
 
+class Form;
+
 class Bureaucrat
 {
 private:
@@ -27,6 +29,7 @@ public:
 
 	void	increment();
 	void	decrement();
+	void	signForm( Form &form );
 
 	class GradeTooHighException : public std::exception
 	{
