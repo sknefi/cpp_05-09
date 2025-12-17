@@ -15,7 +15,7 @@ int main()
 		std::cout << shrub << std::endl;
 
 		gardener.signForm(shrub);
-		shrub.execute(gardener);
+		gardener.executeForm(shrub);
 
 		std::cout << "-----------------------------" << std::endl;
 
@@ -25,7 +25,7 @@ int main()
 
 		std::cout << tech;
 		tech.signForm(robo);
-		robo.execute(tech);
+		tech.executeForm(robo);
 
 		std::cout << "-----------------------------" << std::endl;
 
@@ -35,7 +35,7 @@ int main()
 
 		std::cout << president;
 		president.signForm(pardon);
-		pardon.execute(president);
+		president.executeForm(pardon);
 	}
 	catch (const std::exception &e)
 	{
