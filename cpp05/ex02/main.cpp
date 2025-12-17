@@ -1,41 +1,41 @@
 #include "Bureaucrat.hpp"
-#include "AForm.hpp"
+#include "ShrubberyCreationForm.hpp"
+#include "RobotomyRequestForm.hpp"
+#include "PresidentialPardonForm.hpp"
 
 int main()
 {
 	try
 	{
-		std::cout << "=== Valid signing ===" << std::endl;
-		Bureaucrat bob("Bob", 40);
-		AForm      tax("Tax Form", 50, 25);
+		std::cout << "=== ShrubberyCreationForm ===" << std::endl;
+		Bureaucrat gardener("Gardener", 100);
+		ShrubberyCreationForm shrub("home");
 
-		std::cout << bob;
-		std::cout << tax << std::endl;
+		std::cout << gardener;
+		std::cout << shrub << std::endl;
 
-		bob.signForm(tax);
-		std::cout << tax << std::endl;
-
-		std::cout << "-----------------------------" << std::endl;
-
-		std::cout << "=== Too low grade to sign ===" << std::endl;
-		Bureaucrat jim("Jim", 120);
-		AForm      secret("Top Secret", 10, 5);
-
-		std::cout << jim;
-		std::cout << secret << std::endl;
-
-		jim.signForm(secret);          // should fail and print why
-		std::cout << secret << std::endl;
+		gardener.signForm(shrub);
+		shrub.execute(gardener);
 
 		std::cout << "-----------------------------" << std::endl;
 
-		std::cout << "=== Already signed form ===" << std::endl;
-		Bureaucrat alice("Alice", 30);
-		AForm      contract("Contract", 50, 50);
+		std::cout << "=== RobotomyRequestForm ===" << std::endl;
+		Bureaucrat tech("Tech", 40);
+		RobotomyRequestForm robo("Bender");
 
-		alice.signForm(contract);      // first time: signs
-		alice.signForm(contract);      // second time: already signed
-		std::cout << contract << std::endl;
+		std::cout << tech;
+		tech.signForm(robo);
+		robo.execute(tech);
+
+		std::cout << "-----------------------------" << std::endl;
+
+		std::cout << "=== PresidentialPardonForm ===" << std::endl;
+		Bureaucrat president("President", 1);
+		PresidentialPardonForm pardon("Ford Prefect");
+
+		std::cout << president;
+		president.signForm(pardon);
+		pardon.execute(president);
 	}
 	catch (const std::exception &e)
 	{
