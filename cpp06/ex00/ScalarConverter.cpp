@@ -47,8 +47,14 @@ void	ScalarConverter::convert( std::string const &literal )
 		return ;
 	}
 
+	// set how many digits after comma has to display
+	if (d - static_cast<int>(d) == 0) // hasn't fractional part
+		std::cout << std::fixed << std::setprecision(1);
+	else 
+		std::cout << std::setprecision(std::numeric_limits<double>::digits10);
+
 	// char
-	if (d < 0 || d > 127)
+	if (std::isnan(d) || std::isinf(d) || d < 0 || d > 127)
 		std::cout << "char: impossible"						<< std::endl;
 	else if (!std::isprint(static_cast<char>(d)))
 		std::cout << "char: not_displayable"				<< std::endl;
@@ -56,7 +62,7 @@ void	ScalarConverter::convert( std::string const &literal )
 		std::cout << "char: " << static_cast<char>(d)		<< std::endl;
 	
 	// int
-	if (d < std::numeric_limits<int>::min() || d > std::numeric_limits<int>::max() || std::isnan(d) || std::isinf(d))
+	if (std::isnan(d) || std::isinf(d) || d < std::numeric_limits<int>::min() || d > std::numeric_limits<int>::max())
 		std::cout << "int: impossible"						<< std::endl;
 	else
 		std::cout << "int: " << static_cast<int>(d)			<< std::endl;
