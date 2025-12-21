@@ -1,26 +1,31 @@
-# CPP Module 06 - Exercise 00: Scalar Converter
+# CPP Module 06 — Exercise 00: Scalar Converter
 
-### 🎯 Project Overview
-Creating a static utility class to convert string literals into the four fundamental scalar types of C++.
+## Goal
+Build a small **static utility** that converts a string literal into the four scalar types:
+`char`, `int`, `float`, `double`.
 
-### 🔬 Theory: What is a Scalar?
-We discussed that a **Scalar** is a physical quantity that is fully described by its magnitude (a single number).
-* **Scalar:** 1D (e.g., `42`). Just a magnitude.
-* **Vector:** 2D (e.g., `[x, y]`). Magnitude + Direction.
-* **Matrix:** 3D (A grid/array of values).
-* **Tensor:** 4D+ (Complex multi-dimensional arrays used in AI and General Relativity).
+## Concept refresher: “scalar”
+A **scalar** is fully described by its magnitude (a single value).
 
-In this project, we focused on **Scalar types**: `char`, `int`, `float`, and `double`.
+- **Scalar**: 1D (e.g. `42`) → magnitude only
+- **Vector**: 2D (e.g. `[x, y]`) → magnitude + direction
+- **Matrix**: 3D (grid/array of values)
+- **Tensor**: 4D+ (multi-dimensional structures; common in ML/physics)
 
+## Casting note: `static_cast`
+Compared to old C-style casts like `(int)v`, `static_cast` is the “safe / explicit” cast:
 
+- It performs **real conversions** (may emit CPU instructions).
+- Example: converting `int` → `float` requires building a float representation (sign/exponent/mantissa).
 
-### 🛡️ The Power of `static_cast`
-Unlike the old C-style cast `(int)v`, `static_cast` is the "Safe/Logical" cast. 
-* It actually **executes CPU instructions** to transform bit patterns. 
-* Converting `int` to `float` requires moving the sign bit and calculating an exponent/mantissa.
-
-### 🛠️ "Flashback" Implementation Details
-* **Precision & Bits:** We discussed that a `float` (32-bit) only has ~7 digits of precision because its **Mantissa** is only 23 bits wide. A `double` (64-bit) has ~15-17 digits because its Mantissa is 52 bits wide.
-* **The `end_ptr` Logic:** We used `strtod` because it gives us a pointer to where the parsing stopped. If `literal.c_str() == end_ptr`, it means the input was purely non-numeric garbage.
-* **The `.0` Requirement:** We used `std::fixed` and `std::setprecision(1)` to ensure floating-point values are visually distinct from integers, even if they are whole numbers (e.g., `42.0f`).
-* **Overflow Guards:** We used `std::numeric_limits` to prevent "Undefined Behavior" that occurs when trying to shove a massive double into a small integer container.
+## Implementation notes (what matters in practice)
+- **Precision limits**:
+  - `float` (32-bit) ≈ ~7 digits of precision (23-bit mantissa)
+  - `double` (64-bit) ≈ ~15–17 digits (52-bit mantissa)
+- **Parsing with `strtod`**:
+  - `end_ptr` tells you where parsing stopped.
+  - If `literal.c_str() == end_ptr`, the input wasn’t numeric.
+- **Consistent output formatting**:
+  - `std::fixed` + `std::setprecision(1)` keeps `.0` visible (e.g. `42.0f`), so floats/doubles don’t “look like ints”.
+- **Overflow guards**:
+  - Use `std::numeric_limits` to avoid undefined behavior when converting huge values into smaller integer types.
