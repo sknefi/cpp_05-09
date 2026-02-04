@@ -36,12 +36,23 @@ void	Span::addNumber( int const x )
 	_v.push_back(x);
 }
 
-void	Span::addNumber( std::vector<int>::iterator const begin, std::vector<int>::iterator const end )
+#include <iterator> // std::distance
+
+void Span::addNumber( std::vector<int>::const_iterator begin,
+                      std::vector<int>::const_iterator end )
 {
-	if (_v.size() + std::distance(begin, end) > _n)
-		throw TooManyNumbersInContainerException();
-	_v.insert(_v.end(), begin, end);
+    std::ptrdiff_t d = std::distance(begin, end);
+    if (d < 0)
+        throw TooManyNumbersInContainerException(); // or a different exception if you prefer
+
+    size_t count = static_cast<size_t>(d);
+
+    if (_v.size() + count > _n)
+        throw TooManyNumbersInContainerException();
+
+    _v.insert(_v.end(), begin, end);
 }
+
 
 void	Span::print_vector() const
 {
@@ -50,7 +61,36 @@ void	Span::print_vector() const
 		std::cout << _v[i] << " ";
 	}
 	std::cout << std::endl;
+}
+
+int		Span::shortestSpan() const
+{
+	if (_v.size() <= 1)
+		throw NotEnoughItemsToCalcSpanException();
 	
+	std::vector<int>	tmp(_v);
+	std::sort(tmp.begin(), tmp.end());
+
+	int		best = std::numeric_limits<int>::max();
+	for (size_t i = 1; i < tmp.size(); i++)
+	{
+		int	diff = tmp[i] - tmp[i - 1];
+		if (diff < best)
+			best = diff;
+	}
+
+	return (best);
+}
+
+int		Span::longestSpan() const
+{
+	if (_v.size() <= 1)
+		throw NotEnoughItemsToCalcSpanException();
+	
+	std::vector<int>::const_iterator min = std::min_element(_v.begin(), _v.end());
+	std::vector<int>::const_iterator max = std::max_element(_v.begin(), _v.end());
+
+	return (*max - *min);
 }
 
 const char *Span::TooManyNumbersInContainerException::what() const throw()
