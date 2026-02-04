@@ -18,8 +18,8 @@ static void	test_basic()
 
 	sp.print_vector();
 
-	std::cout << "shortestSpan: " << sp.shortestSpan() << "\n"; // expected 2 (9-11 or 6-3? actually sorted: 3,6,9,11,17 => diffs 3,3,2,6 => 2)
-	std::cout << "longestSpan : " << sp.longestSpan()  << "\n"; // expected 14 (17-3)
+	std::cout << "shortestSpan: " << sp.shortestSpan() << "\n"; // expected 2
+	std::cout << "longestSpan : " << sp.longestSpan()  << "\n"; // expected 14
 }
 
 static void	test_not_enough()
