@@ -8,7 +8,7 @@ int		main( int argc, char *argv[] )
 	(void)argv;
 	if (argc != 2)
 	{
-		std::cout << "Usage: ./btc [input_file]" << std::endl;
+		std::cerr << "Usage: ./btc [input_file]" << std::endl;
 		return 1;
 	}
 	
@@ -19,7 +19,8 @@ int		main( int argc, char *argv[] )
 	}
 	catch (std::exception &e)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
 	}
 	return 0;
 }
