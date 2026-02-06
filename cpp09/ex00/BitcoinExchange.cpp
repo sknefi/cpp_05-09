@@ -1,9 +1,5 @@
 #include "BitcoinExchange.hpp"
-#include <cstdlib>
-#include <cctype>
-#include <sstream>
-#include <iomanip>
-#include <stdexcept>
+
 
 BitcoinExchange::BitcoinExchange()
 {
@@ -228,6 +224,16 @@ static bool	parse_input_line(std::string const &line, Date &date, double &value,
 	return true;
 }
 
+// For "bad input" errors, the subject examples display only the date token.
+// If the line contains '|', return the trimmed left side, otherwise the whole trimmed line.
+static std::string	bad_input_token(std::string const &line)
+{
+	size_t pipe = line.find('|');
+	if (pipe == std::string::npos)
+		return trim(line);
+	return trim(line.substr(0, pipe));
+}
+
 void	BitcoinExchange::_parse_input_file( std::string const &path ) const
 {
 	std::ifstream	file(path);
@@ -249,7 +255,7 @@ void	BitcoinExchange::_parse_input_file( std::string const &path ) const
 		std::string value_str;
 		if (!parse_input_line(line, date, value, value_str))
 		{
-			std::cout << "Error: bad input => " << line << std::endl;
+			std::cout << "Error: bad input => " << bad_input_token(line) << std::endl;
 			continue ;
 		}
 
@@ -267,7 +273,7 @@ void	BitcoinExchange::_parse_input_file( std::string const &path ) const
 		std::map<Date, ExchangeRate>::const_iterator it = find_rate_for_date(_db, date);
 		if (it == _db.end())
 		{
-			std::cout << "Error: bad input => " << line << std::endl;
+			std::cout << "Error: bad input => " << bad_input_token(line) << std::endl;
 			continue ;
 		}
 
@@ -286,5 +292,5 @@ void	BitcoinExchange::display_db() const
 
 const char	*BitcoinExchange::NoInputFileDefined::what() const throw()
 {
-	return "could not open file";
+	return "could not open file.";
 }
