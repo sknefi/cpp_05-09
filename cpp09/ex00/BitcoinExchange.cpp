@@ -106,7 +106,7 @@ static bool		validate_rate( std::string const &s, ExchangeRate &out )
     return true;
 }
 
-static void		parse_db_line( std::string const line, Date &date, ExchangeRate &ex_rate )
+static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &ex_rate )
 {
 	size_t	comma = line.find(',');
 	if (comma == std::string::npos) // no comma
@@ -143,7 +143,10 @@ void	BitcoinExchange::_parse_db( std::string const &path )
 		Date			date;
 		ExchangeRate	exchange_rate;
 
+		#ifdef DEBUG
 		std::cout << line << std::endl;
+		#endif
+
 		parse_db_line(line, date, exchange_rate);
 		_db[date] = exchange_rate;
 	}
