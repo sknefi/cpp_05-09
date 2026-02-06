@@ -1,7 +1,8 @@
 #include "BitcoinExchange.hpp"
 
 
-BitcoinExchange::BitcoinExchange()
+BitcoinExchange::BitcoinExchange() :
+	_input_file_path(DEFAULT_INPUT_FILE_PATH)
 {
 	_parse_db(DB_PATH);
 }
@@ -36,6 +37,11 @@ void	BitcoinExchange::set_input_file( std::string const &infile_path )
 	_input_file_path = infile_path;
 }
 
+/**
+ * Trim the string: remove leading and trailing whitespace
+ * @param s - the string to trim
+ * @return the trimmed string
+ */
 static std::string	trim( std::string const &s )
 {
     size_t	i = 0;
@@ -49,11 +55,22 @@ static std::string	trim( std::string const &s )
     return s.substr(i, j - i);
 }
 
+/**
+ * Check if the year is a leap year
+ * @param y - the year
+ * @return true if the year is a leap year, false otherwise
+ */
 static bool		is_leap( int y )
 {
     return (y % 400 == 0) || (y % 4 == 0 && y % 100 != 0);
 }
 
+/**
+ * Get the number of days in the month
+ * @param y - the year
+ * @param m - the month
+ * @return the number of days in the month
+ */
 static int		days_in_month( int y, int m )
 {
     static const int d[] = {31,28,31,30,31,30,31,31,30,31,30,31};
@@ -62,7 +79,21 @@ static int		days_in_month( int y, int m )
     return d[m - 1];
 }
 
-static bool		validate_date(const std::string& date)
+/**
+ * Validate the date format: YYYY-MM-DD :
+ * - Year: 4 digits
+ * - Month: 2 digits (1-12)
+ * - Day: 2 digits (1-31)
+ * - The month must be between 1 and 12
+ * - The day must be between 1 and 31
+ * - The day must be valid for the month
+ * - The year must be a leap year if the month is 2 and the day is 29
+ * - The year must be a leap year if the year is divisible by 400
+ * - The year must be a leap year if the year is divisible by 4 and not divisible by 100
+ * @param date - the date to validate
+ * @return true if the date is valid, false otherwise
+ */
+static bool		validate_date( const std::string &date )
 {
     if (date.size() != 10 || date[4] != '-' || date[7] != '-')
         return false;
@@ -86,6 +117,12 @@ static bool		validate_date(const std::string& date)
     return true;
 }
 
+/**
+ * Validate the exchange rate
+ * @param s - the exchange rate to validate
+ * @param out - the exchange rate to validate
+ * @return true if the exchange rate is valid, false otherwise
+ */
 static bool		validate_rate( std::string const &s, ExchangeRate &out )
 {
     std::string		t = trim(s);
@@ -107,6 +144,12 @@ static bool		validate_rate( std::string const &s, ExchangeRate &out )
     return true;
 }
 
+/**
+ * Validate the value
+ * @param s - the value to validate
+ * @param out - the value to validate
+ * @return true if the value is valid, false otherwise
+ */
 static bool		validate_value( std::string const &s, double &out )
 {
 	std::string		t = trim(s);
@@ -125,6 +168,11 @@ static bool		validate_value( std::string const &s, double &out )
 	return true;
 }
 
+/**
+ * Format the double: remove trailing zeros and decimal point if it's 0
+ * @param x - the double to format
+ * @return the formatted string
+ */
 static std::string	format_double_clean( double x )
 {
 	std::ostringstream	oss;
@@ -145,6 +193,13 @@ static std::string	format_double_clean( double x )
 	return s;
 }
 
+/**
+ * Find the exchange rate for the date, if the date is not found,
+ * return the closest lower date
+ * @param db - the database
+ * @param date - the date to find the exchange rate for
+ * @return the exchange rate for the date
+ */
 static std::map<Date, ExchangeRate>::const_iterator
 	find_rate_for_date( std::map<Date, ExchangeRate> const &db, Date const &date )
 {
@@ -158,6 +213,13 @@ static std::map<Date, ExchangeRate>::const_iterator
 	return --it;
 }
 
+/**
+ * Parse the database line
+ * @param line - the line to parse
+ * @param date - the date to parse
+ * @param ex_rate - the exchange rate to parse
+ * @throws std::runtime_error - if the line is invalid
+ */
 static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &ex_rate )
 {
 	size_t	comma = line.find(',');
@@ -208,6 +270,14 @@ void	BitcoinExchange::_parse_db( std::string const &path )
 	file.close();
 }
 
+/**
+ * Parse the input line
+ * @param line - the line to parse
+ * @param date - the date to parse
+ * @param value - the value to parse
+ * @param value_str - the value string to parse
+ * @return true if the line is valid, false otherwise
+ */
 static bool	parse_input_line(std::string const &line, Date &date, double &value, std::string &value_str)
 {
 	size_t	pipe = line.find('|');
@@ -224,9 +294,14 @@ static bool	parse_input_line(std::string const &line, Date &date, double &value,
 	return true;
 }
 
-// For "bad input" errors, the subject examples display only the date token.
-// If the line contains '|', return the trimmed left side, otherwise the whole trimmed line.
-static std::string	bad_input_token(std::string const &line)
+
+/**
+ * Get the bad input token,
+ * example: "2011-01-33 | 3" => "2011-01-33"
+ * @param line - the line to get the bad input token from
+ * @return the bad input token
+ */
+static std::string	bad_input_token( std::string const &line )
 {
 	size_t pipe = line.find('|');
 	if (pipe == std::string::npos)
@@ -234,7 +309,7 @@ static std::string	bad_input_token(std::string const &line)
 	return trim(line.substr(0, pipe));
 }
 
-void	BitcoinExchange::_parse_input_file( std::string const &path ) const
+void	BitcoinExchange::_process_input_file( std::string const &path ) const
 {
 	std::ifstream	file(path);
 	if (!file.is_open())
@@ -287,7 +362,7 @@ void	BitcoinExchange::display_db() const
 {
 	if (_input_file_path.empty())
 		throw NoInputFileDefined();
-	_parse_input_file(_input_file_path);
+	_process_input_file(_input_file_path);
 }
 
 const char	*BitcoinExchange::NoInputFileDefined::what() const throw()
