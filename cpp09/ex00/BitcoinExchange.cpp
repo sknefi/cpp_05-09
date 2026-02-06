@@ -1,4 +1,9 @@
 #include "BitcoinExchange.hpp"
+#include <cstdlib>
+#include <cctype>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
 
 BitcoinExchange::BitcoinExchange()
 {
@@ -106,6 +111,57 @@ static bool		validate_rate( std::string const &s, ExchangeRate &out )
     return true;
 }
 
+static bool		validate_value( std::string const &s, double &out )
+{
+	std::string		t = trim(s);
+	if (t.empty())
+		return false;
+
+	char	*end = 0;
+	out = std::strtod(t.c_str(), &end);
+
+	while (end && *end && std::isspace(static_cast<unsigned char>(*end)))
+		end++;
+
+	if (!end || *end != '\0')
+		return false;
+
+	return true;
+}
+
+static std::string	format_double_clean( double x )
+{
+	std::ostringstream	oss;
+	oss.setf(std::ios::fixed);
+	oss << std::setprecision(10) << x;
+	std::string		s = oss.str();
+
+	std::string::size_type	dot = s.find('.');
+	if (dot != std::string::npos)
+	{
+		while (!s.empty() && s[s.size() - 1] == '0')
+			s.erase(s.size() - 1);
+		if (!s.empty() && s[s.size() - 1] == '.')
+			s.erase(s.size() - 1);
+	}
+	if (s.empty())
+		return "0";
+	return s;
+}
+
+static std::map<Date, ExchangeRate>::const_iterator
+	find_rate_for_date( std::map<Date, ExchangeRate> const &db, Date const &date )
+{
+	std::map<Date, ExchangeRate>::const_iterator it = db.lower_bound(date);
+	if (it != db.end() && it->first == date)
+		return it;
+	if (it == db.begin())
+		return db.end(); // no lower date exists
+	if (it == db.end())
+		return --it;
+	return --it;
+}
+
 static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &ex_rate )
 {
 	size_t	comma = line.find(',');
@@ -113,7 +169,7 @@ static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &e
 		throw std::runtime_error("Invalid line, NO coloumns - " + line);
 	
 	date = trim(line.substr(0, comma));
-	std::string	ex_rate_str = trim(line.substr(comma + 1));
+	std::string		ex_rate_str = trim(line.substr(comma + 1));
 	if (!validate_date(date))
 		throw std::runtime_error("Invalid line, WRONG format of date - " + line);
 	
@@ -125,20 +181,23 @@ static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &e
 
 void	BitcoinExchange::_parse_db( std::string const &path )
 {
+	if (path.substr(path.size() - 4) != ".csv") // check if file is .csv
+		throw std::runtime_error("File has to be in .csv format");
+	
 	std::ifstream	file(path);
 	if (!file.is_open())
 		throw std::runtime_error("DB (.csv file) could NOT be opened");
 	
 	std::string		coloumns;
 	getline(file, coloumns);
-	if (trim(coloumns) != "date,exchange_rate")
+	if (trim(coloumns) != CSV_VALID_COLOUMNS)
 		throw std::runtime_error("DB (.csv file) has invalid coloumns");
 	
 	std::string		line;
 	while (getline(file, line))
 	{
 		if (line.empty())
-			continue;
+			continue ;
 
 		Date			date;
 		ExchangeRate	exchange_rate;
@@ -151,4 +210,81 @@ void	BitcoinExchange::_parse_db( std::string const &path )
 		_db[date] = exchange_rate;
 	}
 	file.close();
+}
+
+static bool	parse_input_line(std::string const &line, Date &date, double &value, std::string &value_str)
+{
+	size_t	pipe = line.find('|');
+	if (pipe == std::string::npos)
+		return false;
+
+	date = trim(line.substr(0, pipe));
+	value_str = trim(line.substr(pipe + 1));
+
+	if (!validate_date(date))
+		return false;
+	if (!validate_value(value_str, value))
+		return false;
+	return true;
+}
+
+void	BitcoinExchange::_parse_input_file( std::string const &path ) const
+{
+	std::ifstream	file(path);
+	if (!file.is_open())
+		throw std::runtime_error("could not open file.");
+
+	std::string		line;
+	if (!getline(file, line))
+		throw std::runtime_error("could not open file.");
+	if (trim(line) != INPUT_FILE_HEADER)
+		throw std::runtime_error("bad input => " + line);
+	while (getline(file, line))
+	{
+		if (line.empty())
+			continue ;
+
+		Date	date;
+		double	value;
+		std::string value_str;
+		if (!parse_input_line(line, date, value, value_str))
+		{
+			std::cout << "Error: bad input => " << line << std::endl;
+			continue ;
+		}
+
+		if (value < 0)
+		{
+			std::cout << "Error: not a positive number." << std::endl;
+			continue ;
+		}
+		if (value > 1000)
+		{
+			std::cout << "Error: too large a number." << std::endl;
+			continue ;
+		}
+
+		std::map<Date, ExchangeRate>::const_iterator it = find_rate_for_date(_db, date);
+		if (it == _db.end())
+		{
+			std::cout << "Error: bad input => " << line << std::endl;
+			continue ;
+		}
+
+		double	result = value * it->second;
+		std::cout << date << " => " << value_str << " = " << format_double_clean(result) << std::endl;
+	}
+	file.close();
+}
+
+void	BitcoinExchange::display_db() const
+{
+	if (_input_file_path.empty())
+		throw NoInputFileDefined();
+	_parse_input_file(_input_file_path);
+}
+
+const char	*BitcoinExchange::NoInputFileDefined::what() const throw()
+{
+	return "could not open file";
 }

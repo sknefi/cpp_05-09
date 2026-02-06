@@ -14,7 +14,8 @@ int		main( int argc, char *argv[] )
 	
 	try
 	{
-		BitcoinExchange b;
+		BitcoinExchange b(argv[1]);
+		b.display_db();
 	}
 	catch (std::exception &e)
 	{
