@@ -29,4 +29,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+debug: FLAGS += -DDEBUG -g
+debug: re
+
+.PHONY: all clean fclean re debug
