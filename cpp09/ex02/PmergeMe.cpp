@@ -24,14 +24,19 @@ PmergeMe::~PmergeMe()
 {
 }
 
-PmergeMe &PmergeMe::operator=( const PmergeMe &other )
+PmergeMe &PmergeMe::operator=( PmergeMe const &other )
 {
 	if (this != &other)
 	{
 		_vec = other._vec;
-		_dec = other._dec;
+		_deq = other._deq;
 	}
 	return *this;
+}
+
+void	PmergeMe::set_input( std::string const &input )
+{
+	_parse_input(input);
 }
 
 /**
@@ -40,12 +45,15 @@ PmergeMe &PmergeMe::operator=( const PmergeMe &other )
  */
 void	PmergeMe::_parse_input( std::string const &input )
 {
+	_vec.clear();
+	_deq.clear();
+
 	std::istringstream	iss(input);
 	std::string			token;
-	while (iss >> token) // this works as split, so
+	while (iss >> token)
 	{
 		#ifdef DEBUG
-		std::cout << "Token: " token << std::endl;
+			std::cout << "Token: " << token << std::endl;
 		#endif
 		if (token.empty())
 			continue;
@@ -59,12 +67,31 @@ void	PmergeMe::_parse_input( std::string const &input )
 		if (value <= 0 || value > INT_MAX)
 			throw ValidationException();
 		_vec.push_back(static_cast<int>(value));
+		_deq.push_back(static_cast<int>(value));
 	}
 
-	if (_vec.empty())
+	if (_vec.empty() || _deq.empty())
 		throw ValidationException();
 }
 
+void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
+{
+
+}
+
+void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
+{
+
+}
+
+/**
+ * Ford-Jhonson sort
+ */
+void	PmergeMe::sort()
+{
+	_ford_johnson_sort_vector(_vec);
+	_ford_johnson_sort_deque(_deq);
+}
 
 const char	*PmergeMe::ValidationException::what() const throw()
 {

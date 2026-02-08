@@ -2,15 +2,18 @@
 
 #include <vector>
 #include <deque>
+#include <string>
 #include <exception>
 
 class PmergeMe
 {
     private:
-        std::vector<int>					_vec;
-        std::deque< std::pair<int, int> >	_dec;
+        std::vector<int>	_vec;
+        std::deque<int>		_deq;
 		
 		void	_parse_input( std::string const &input );
+		void	_ford_johnson_sort_vector( std::vector<int> &v );
+		void	_ford_johnson_sort_deque( std::deque<int> &d );
 
 
     public:
@@ -22,6 +25,7 @@ class PmergeMe
         PmergeMe &operator=( const PmergeMe &other );
 
 		void	sort();
+		void	set_input( std::string const &input );
 
 		class ValidationException : public std::exception
 		{
