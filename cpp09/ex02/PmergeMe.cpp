@@ -44,6 +44,9 @@ void	PmergeMe::_parse_input( std::string const &input )
 	std::string			token;
 	while (iss >> token) // this works as split, so
 	{
+		#ifdef DEBUG
+		std::cout << "Token: " token << std::endl;
+		#endif
 		if (token.empty())
 			continue;
 		for (size_t i = 0; i < token.size(); ++i)
