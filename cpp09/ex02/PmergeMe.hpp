@@ -12,9 +12,17 @@ class PmergeMe
         std::deque<int>		_deq;
 		
 		void	_parse_input( std::string const &input );
+		
 		void	_ford_johnson_sort_vector( std::vector<int> &v );
 		void	_ford_johnson_sort_deque( std::deque<int> &d );
-
+		
+		//                     min, max
+		std::vector< std::pair<int, int> >	
+				_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem );
+		
+		void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
+										  std::vector<int> &smalls,
+										  std::vector<int> &bigs );
 
     public:
         PmergeMe();

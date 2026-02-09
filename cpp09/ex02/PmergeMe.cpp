@@ -74,9 +74,62 @@ void	PmergeMe::_parse_input( std::string const &input )
 		throw ValidationException();
 }
 
+// 8 9 2 1 5 2 4 3
+std::vector< std::pair<int, int> >
+	PmergeMe::_create_pairs_vector( std::vector<int> const &v,
+									bool &has_rem,
+									int &rem )
+{
+	std::vector< std::pair<int, int> >	pairs;
+	pairs.reserve(v.size() / 2);
+
+	size_t	i = 0;
+	while (i + 1 < v.size())
+	{
+		int		min = std::min(v[i], v[i + 1]);
+		int		max = std::max(v[i], v[i + 1]);
+		pairs.push_back(std::make_pair(min, max));
+		i += 2;
+	}
+	has_rem	= i < v.size() ? true : false;
+	rem		= i < v.size() ? v[i] : -1;
+	return pairs;
+}
+
+void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
+											std::vector<int> &smalls,
+											std::vector<int> &bigs )
+{
+	bigs.clear();
+	smalls.clear();
+
+	bigs.reserve(p.size());
+	smalls.reserve(p.size());
+
+	for (size_t i = 0; i < p.size(); i++)
+	{
+		smalls.push_back(p[i].first);
+		bigs.push_back(p[i].second);
+	}	
+}
+												
+
 void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 {
+	if (v.size() <= 1)
+		return ;
 
+	bool	has_rem;
+	int		rem;
+	std::vector< std::pair<int, int> >	pairs;
+	pairs = _create_pairs_vector(v, has_rem, rem);
+
+	std::vector<int>	bigs;
+	std::vector<int>	smalls;
+	_extract_smalls_and_bigs(pairs, smalls, bigs);
+	_ford_johnson_sort_vector(bigs);
+	
+	
 }
 
 void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
