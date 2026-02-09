@@ -57,7 +57,7 @@ void	PmergeMe::_parse_input( std::string const &input )
 			std::cout << "Token: " << token << std::endl;
 		#endif
 		if (token.empty())
-			continue;
+			continue ;
 		for (size_t i = 0; i < token.size(); ++i)
 		{
 			if (!std::isdigit(static_cast<unsigned char>(token[i])))
@@ -74,6 +74,18 @@ void	PmergeMe::_parse_input( std::string const &input )
 	if (_vec.empty() || _deq.empty())
 		throw ValidationException();
 }
+
+#ifdef DEBUG
+	static void		display_vec( std::vector<int> const &v, std::string const &name )
+	{
+		std::cout << name << ": ";
+		for (size_t i = 0; i < v.size(); i++)
+		{
+			std::cout << v[i] << " ";
+		}
+		std::cout << std::endl;
+	}
+#endif
 
 // 8 9 2 1 5 2 4 3
 std::vector< std::pair<int, int> >
@@ -111,7 +123,11 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
 	{
 		smalls.push_back(p[i].first);
 		bigs.push_back(p[i].second);
-	}	
+	}
+	#ifdef DEBUG
+		display_vec(bigs, "bigs");
+		display_vec(smalls, "smalls");
+	#endif
 }
 												
 
@@ -128,6 +144,7 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	std::vector<int>	bigs;
 	std::vector<int>	smalls;
 	_extract_smalls_and_bigs(pairs, smalls, bigs);
+	
 	_ford_johnson_sort_vector(bigs);
 
 	
@@ -144,11 +161,7 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 void	PmergeMe::sort()
 {
 	#ifdef DEBUG
-	for (size_t i = 0; i < _vec.size(); i++)
-	{
-		std::cout << _vec[i] << " ";
-	}
-	std::cout << std::endl;
+		display_vec(_vec, "input");
 	#endif
 	
 	_ford_johnson_sort_vector(_vec);
