@@ -14,7 +14,7 @@ class PmergeMe
 		void	_parse_input( std::string const &input );
 		
 		void	_ford_johnson_sort_vector( std::vector<int> &v );
-		void	_ford_johnson_sort_deque( std::deque<int> &d );
+		// void	_ford_johnson_sort_deque( std::deque<int> &d );
 		
 		//                     min, max
 		std::vector< std::pair<int, int> >	

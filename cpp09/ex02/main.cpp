@@ -26,7 +26,7 @@ int		main( int argc, char *argv[] )
 	try
 	{
 		PmergeMe p(merge_argv(argc, argv));
-		// p.sort();
+		p.sort();
 		std::cout << "OK" << std::endl;
 	}
 	catch (const std::exception &e)

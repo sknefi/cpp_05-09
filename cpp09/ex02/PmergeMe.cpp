@@ -4,6 +4,7 @@
 #include <cctype>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 
 PmergeMe::PmergeMe()
@@ -128,22 +129,30 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	std::vector<int>	smalls;
 	_extract_smalls_and_bigs(pairs, smalls, bigs);
 	_ford_johnson_sort_vector(bigs);
-	
+
 	
 }
 
-void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
-{
+// void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
+// {
 
-}
+// }
 
 /**
  * Ford-Jhonson sort
  */
 void	PmergeMe::sort()
 {
+	#ifdef DEBUG
+	for (size_t i = 0; i < _vec.size(); i++)
+	{
+		std::cout << _vec[i] << " ";
+	}
+	std::cout << std::endl;
+	#endif
+	
 	_ford_johnson_sort_vector(_vec);
-	_ford_johnson_sort_deque(_deq);
+	// _ford_johnson_sort_deque(_deq);
 }
 
 const char	*PmergeMe::ValidationException::what() const throw()
