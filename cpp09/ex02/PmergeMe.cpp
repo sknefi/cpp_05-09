@@ -129,7 +129,64 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
 		display_vec(smalls, "smalls");
 	#endif
 }
-												
+
+std::vector<size_t>		PmergeMe::_ford_johnson_order(size_t k)
+{
+	std::vector<size_t>		order;
+	if (k == 0)
+		return order;
+
+	// ---- 1) Build milestones (1-based): 1, 3, 5, 11, 21, ... up to k
+	std::vector<size_t>		milestones;
+	milestones.push_back(1);
+
+	size_t j_prev = 0;
+	size_t j_curr = 1;
+	size_t last_added = 1;
+
+	while (true)
+	{
+		size_t j_next = j_curr + 2 * j_prev;
+		j_prev = j_curr;
+		j_curr = j_next;
+
+		if (j_curr > k)
+			break;
+
+		if (j_curr != last_added)
+		{
+			milestones.push_back(j_curr);
+			last_added = j_curr;
+		}
+	}
+
+	// ---- 2) Build order in 1-based indices using milestones
+	std::vector<size_t>		order_1based;
+	size_t					prev_m = 1;
+	order_1based.reserve(k);
+	order_1based.push_back(1);
+
+	for (size_t mi = 1; mi < milestones.size(); ++mi)
+	{
+		size_t m = milestones[mi];
+		// add m, m-1, ..., prev_m+1
+		for (size_t x = m; x > prev_m; --x)
+			order_1based.push_back(x);
+		prev_m = m;
+	}
+
+	// ---- 3) Append the rest: k, k-1, ..., prev_m+1
+	for (size_t x = k; x > prev_m; --x)
+		order_1based.push_back(x);
+
+	// ---- 4) Convert to 0-based
+	order.reserve(order_1based.size());
+	for (size_t i = 0; i < order_1based.size(); ++i)
+		order.push_back(order_1based[i] - 1);
+
+	return order;
+}
+
 
 void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 {
@@ -146,6 +203,10 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	_extract_smalls_and_bigs(pairs, smalls, bigs);
 	
 	_ford_johnson_sort_vector(bigs);
+	// ford johnson order - indexes in vector
+
+	// insert each pairs smalls into bigs
+
 
 	
 }

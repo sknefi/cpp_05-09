@@ -23,6 +23,9 @@ class PmergeMe
 		void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
 										  std::vector<int> &smalls,
 										  std::vector<int> &bigs );
+		
+		std::vector<size_t>		_ford_johnson_order( size_t k );
+
 
     public:
         PmergeMe();
