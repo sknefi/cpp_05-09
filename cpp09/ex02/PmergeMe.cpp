@@ -41,8 +41,8 @@ void	PmergeMe::set_input( std::string const &input )
 }
 
 /**
- * Parse input to this->_vec, throw error if user input is not valid
- * "iss >> token" is splitting input by white characters, so it works like split()
+ * Parse input into _vec/_deq and validate each token.
+ * Uses std::istringstream to split on whitespace.
  */
 void	PmergeMe::_parse_input( std::string const &input )
 {
@@ -56,8 +56,6 @@ void	PmergeMe::_parse_input( std::string const &input )
 		#ifdef DEBUG
 			std::cout << "Token: " << token << std::endl;
 		#endif
-		if (token.empty())
-			continue ;
 		for (size_t i = 0; i < token.size(); ++i)
 		{
 			if (!std::isdigit(static_cast<unsigned char>(token[i])))
@@ -87,7 +85,6 @@ void	PmergeMe::_parse_input( std::string const &input )
 	}
 #endif
 
-// 8 9 2 1 5 2 4 3
 std::vector< std::pair<int, int> >
 	PmergeMe::_create_pairs_vector( std::vector<int> const &v,
 									bool &has_rem,
@@ -130,7 +127,7 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const
 	#endif
 }
 
-std::vector<size_t>		PmergeMe::_ford_johnson_sequence(size_t const k)
+std::vector<size_t>		PmergeMe::_ford_johnson_sequence( size_t const k )
 {
 	std::vector<size_t>		seq;
 	if (k == 0)
@@ -212,24 +209,30 @@ void	PmergeMe::_insert_rem_to_bigs( std::vector<int> &bigs, int const rem )
 
 void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 {
-	if (v.size() <= 1)
+	if (v.size() <= 1) // base case for recursion
 		return ;
 
+	// Create pairs, where each pair.first < pair.second
 	bool	has_rem;
 	int		rem;
 	std::vector< std::pair<int, int> >	pairs;
 	pairs = _create_pairs_vector(v, has_rem, rem);
 
+	// Extract bigs and smalls from each pair
 	std::vector<int>	bigs;
 	std::vector<int>	smalls;
 	_extract_smalls_and_bigs(pairs, smalls, bigs);
 	
+	// Recursive call to sort bigs
 	_ford_johnson_sort_vector(bigs);
 
+	// Create idx sequence 
 	std::vector<size_t>		fj_seq = _ford_johnson_sequence(pairs.size());
 
+	// Insert small number from pair to bigs
 	_insert_smalls_to_bigs(bigs, fj_seq, pairs);
 	
+	// If there is odd number of numbers, then insert rem
 	if (has_rem)
 		_insert_rem_to_bigs(bigs, rem);
 	
