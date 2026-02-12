@@ -9,6 +9,7 @@
 	fj_		-> Ford Johnson
 	j_		-> Jacobsthal
 	m_		-> milestone
+	it		-> iterator
 */
 
 class PmergeMe
@@ -30,7 +31,7 @@ private:
 										std::vector<int> &smalls,
 										std::vector<int> &bigs );
 	
-	std::vector<size_t>		_ford_johnson_order( size_t k );
+	std::vector<size_t>		_ford_johnson_sequence( size_t k );
 
 
 public:

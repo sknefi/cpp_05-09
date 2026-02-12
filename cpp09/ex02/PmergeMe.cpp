@@ -130,11 +130,11 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
 	#endif
 }
 
-std::vector<size_t>		PmergeMe::_ford_johnson_order(size_t k)
+std::vector<size_t>		PmergeMe::_ford_johnson_sequence(size_t k)
 {
-	std::vector<size_t>		order;
+	std::vector<size_t>		seq;
 	if (k == 0)
-		return order;
+		return seq;
 
 	// ---- 1) Build milestones (1-based): 1, 3, 5, 11, 21, ... up to k
 	std::vector<size_t>		milestones;
@@ -180,11 +180,11 @@ std::vector<size_t>		PmergeMe::_ford_johnson_order(size_t k)
 		order_1based.push_back(x);
 
 	// ---- 4) Convert to 0-based
-	order.reserve(order_1based.size());
+	seq.reserve(order_1based.size());
 	for (size_t i = 0; i < order_1based.size(); ++i)
-		order.push_back(order_1based[i] - 1);
+		seq.push_back(order_1based[i] - 1);
 
-	return order;
+	return seq;
 }
 
 
@@ -204,12 +204,29 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	
 	_ford_johnson_sort_vector(bigs);
 
-	std::vector<size_t>		fj_order = _ford_johnson_order(bigs.size());
-
-	// insert each pairs smalls into bigs
+	std::vector<size_t>		fj_seq = _ford_johnson_sequence(bigs.size());
 
 
+	for (size_t i = 0; i < fj_seq.size(); i++)
+	{
+		int		small = pairs[i].first;
+		int		big = pairs[i].second;
+
+		std::vector<int>::iterator	it_big = std::lower_bound(bigs.begin(), bigs.end(), big);
+		std::vector<int>::iterator	it_small = std::lower_bound(bigs.begin(), it_big, small);
+
+		bigs.insert(it_small, small);
+	}
 	
+	if (has_rem)
+	{
+		std::vector<int>::iterator	it_rem = std::lower_bound(bigs.begin(), bigs.end(), rem);
+		bigs.insert(it_rem, rem);
+	}
+	v = bigs;
+	#ifdef DEBUG
+		display_vec(v, "output");
+	#endif
 }
 
 // void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
