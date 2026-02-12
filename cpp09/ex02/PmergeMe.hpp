@@ -27,12 +27,17 @@ private:
 	std::vector< std::pair<int, int> >	
 			_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem );
 	
-	void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
-										std::vector<int> &smalls,
-										std::vector<int> &bigs );
+	void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const &p,
+									  std::vector<int> &smalls,
+									  std::vector<int> &bigs );
 	
-	std::vector<size_t>		_ford_johnson_sequence( size_t k );
+	std::vector<size_t>		_ford_johnson_sequence( size_t const k );
 
+	void					_insert_smalls_to_bigs( std::vector<int> &bigs,
+													std::vector<size_t> const &fj_seq,
+													std::vector< std::pair<int, int> > const &pairs );
+
+	void					_insert_rem_to_bigs( std::vector<int> &bigs, int rem );
 
 public:
 	PmergeMe();

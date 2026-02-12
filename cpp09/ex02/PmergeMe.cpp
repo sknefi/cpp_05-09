@@ -109,7 +109,7 @@ std::vector< std::pair<int, int> >
 	return pairs;
 }
 
-void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
+void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const &p,
 											std::vector<int> &smalls,
 											std::vector<int> &bigs )
 {
@@ -130,7 +130,7 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > &p,
 	#endif
 }
 
-std::vector<size_t>		PmergeMe::_ford_johnson_sequence(size_t k)
+std::vector<size_t>		PmergeMe::_ford_johnson_sequence(size_t const k)
 {
 	std::vector<size_t>		seq;
 	if (k == 0)
@@ -187,6 +187,28 @@ std::vector<size_t>		PmergeMe::_ford_johnson_sequence(size_t k)
 	return seq;
 }
 
+void	PmergeMe::_insert_smalls_to_bigs( std::vector<int> &bigs,
+									  	  std::vector<size_t> const &fj_seq,
+									  	  std::vector< std::pair<int, int> > const &pairs )
+{
+	for (size_t i = 0; i < fj_seq.size(); i++)
+	{
+		size_t	idx = fj_seq[i];
+		int		small = pairs[idx].first;
+		int		big = pairs[idx].second;
+
+		std::vector<int>::iterator	it_big = std::lower_bound(bigs.begin(), bigs.end(), big);
+		std::vector<int>::iterator	it_small = std::lower_bound(bigs.begin(), it_big, small);
+
+		bigs.insert(it_small, small);
+	}
+}
+
+void	PmergeMe::_insert_rem_to_bigs( std::vector<int> &bigs, int const rem )
+{
+	std::vector<int>::iterator	it_rem = std::lower_bound(bigs.begin(), bigs.end(), rem);
+	bigs.insert(it_rem, rem);
+}
 
 void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 {
@@ -204,29 +226,14 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	
 	_ford_johnson_sort_vector(bigs);
 
-	std::vector<size_t>		fj_seq = _ford_johnson_sequence(bigs.size());
+	std::vector<size_t>		fj_seq = _ford_johnson_sequence(pairs.size());
 
-
-	for (size_t i = 0; i < fj_seq.size(); i++)
-	{
-		int		small = pairs[i].first;
-		int		big = pairs[i].second;
-
-		std::vector<int>::iterator	it_big = std::lower_bound(bigs.begin(), bigs.end(), big);
-		std::vector<int>::iterator	it_small = std::lower_bound(bigs.begin(), it_big, small);
-
-		bigs.insert(it_small, small);
-	}
+	_insert_smalls_to_bigs(bigs, fj_seq, pairs);
 	
 	if (has_rem)
-	{
-		std::vector<int>::iterator	it_rem = std::lower_bound(bigs.begin(), bigs.end(), rem);
-		bigs.insert(it_rem, rem);
-	}
+		_insert_rem_to_bigs(bigs, rem);
+	
 	v = bigs;
-	#ifdef DEBUG
-		display_vec(v, "output");
-	#endif
 }
 
 // void	PmergeMe::_ford_johnson_sort_deque( std::deque<int> &d )
@@ -244,6 +251,9 @@ void	PmergeMe::sort()
 	#endif
 	
 	_ford_johnson_sort_vector(_vec);
+	#ifdef DEBUG
+		display_vec(_vec, "output");
+	#endif
 	// _ford_johnson_sort_deque(_deq);
 }
 
