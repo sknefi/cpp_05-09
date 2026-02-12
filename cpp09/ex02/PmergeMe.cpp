@@ -203,7 +203,8 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
 	_extract_smalls_and_bigs(pairs, smalls, bigs);
 	
 	_ford_johnson_sort_vector(bigs);
-	// ford johnson order - indexes in vector
+
+	std::vector<size_t>		fj_order = _ford_johnson_order(bigs.size());
 
 	// insert each pairs smalls into bigs
 
