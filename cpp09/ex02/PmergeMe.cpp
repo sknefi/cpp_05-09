@@ -5,6 +5,8 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <sys/time.h>
+#include <iomanip>
 
 
 PmergeMe::PmergeMe()
@@ -38,6 +40,26 @@ PmergeMe &PmergeMe::operator=( PmergeMe const &other )
 void	PmergeMe::set_input( std::string const &input )
 {
 	_parse_input(input);
+}
+
+double	PmergeMe::_now_us()
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+    return (double)tv.tv_sec * 1000000.0 + (double)tv.tv_usec;
+}
+
+void	PmergeMe::_display_msg( size_t n, double time_us, std::string c_name )
+{
+    std::cout << "Time to process a range of "
+              << n
+              << " elements with std::"
+              << c_name
+              << " : "
+              << std::fixed << std::setprecision(5)
+              << time_us
+              << " us"
+              << std::endl;
 }
 
 /**
@@ -253,10 +275,18 @@ void	PmergeMe::sort()
 		display_vec(_vec, "input");
 	#endif
 	
+	double	start;
+	double	end;
+	double	vec_time;
+	// double	deq_time;
+
+	start = _now_us();
 	_ford_johnson_sort_vector(_vec);
-	#ifdef DEBUG
-		display_vec(_vec, "output");
-	#endif
+	end = _now_us();
+	vec_time = end - start;
+
+	_display_msg(_vec.size(), vec_time, VECTOR);
+
 	// _ford_johnson_sort_deque(_deq);
 }
 

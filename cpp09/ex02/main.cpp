@@ -9,7 +9,7 @@ static std::string	merge_argv( int argc, char *argv[] )
 	for (int i = 1; i < argc; i++)
 	{
 		if (i > 1)
-			merged_str += ' ';
+			merged_str += ' '; // this is fine because I am "splitting" on whitespace
 		merged_str += argv[i];
 	}
 	return merged_str;
