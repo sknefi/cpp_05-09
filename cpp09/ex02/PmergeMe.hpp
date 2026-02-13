@@ -39,6 +39,13 @@ private:
 	void	_display_msg( size_t n, double time_us, std::string c_name );
 
 	/**
+	 * Display vector from subject with name
+	 * @param v - vector to display
+	 * @param name - name of the vector
+	 */
+	void	_display_vector( std::vector<int> const &v, std::string const &name );
+	
+	/**
 	 * Parse the input string and fill both containers.
 	 * Throws ValidationException if:
 	 *  - token is not a number

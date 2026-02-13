@@ -44,9 +44,9 @@ void	PmergeMe::set_input( std::string const &input )
 
 double	PmergeMe::_now_us()
 {
-    timeval tv;
-    gettimeofday(&tv, 0);
-    return (double)tv.tv_sec * 1000000.0 + (double)tv.tv_usec;
+	timeval tv;
+	gettimeofday(&tv, 0);
+	return (double)tv.tv_sec * 1000000.0 + (double)tv.tv_usec;
 }
 
 void	PmergeMe::_display_msg( size_t n, double time_us, std::string c_name )
@@ -95,17 +95,15 @@ void	PmergeMe::_parse_input( std::string const &input )
 		throw ValidationException();
 }
 
-#ifdef DEBUG
-	static void		display_vec( std::vector<int> const &v, std::string const &name )
+void	PmergeMe::_display_vector( std::vector<int> const &v, std::string const &name )
+{
+	std::cout << name << ": ";
+	for (size_t i = 0; i < v.size(); i++)
 	{
-		std::cout << name << ": ";
-		for (size_t i = 0; i < v.size(); i++)
-		{
-			std::cout << v[i] << " ";
-		}
-		std::cout << std::endl;
+		std::cout << v[i] << " ";
 	}
-#endif
+	std::cout << std::endl;
+}
 
 std::vector< std::pair<int, int> >
 	PmergeMe::_create_pairs_vector( std::vector<int> const &v,
@@ -144,8 +142,8 @@ void	PmergeMe::_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const
 		bigs.push_back(p[i].second);
 	}
 	#ifdef DEBUG
-		display_vec(bigs, "bigs");
-		display_vec(smalls, "smalls");
+		_display_vector(bigs, "bigs");
+		_display_vector(smalls, "smalls");
 	#endif
 }
 
@@ -271,23 +269,23 @@ void	PmergeMe::_ford_johnson_sort_vector( std::vector<int> &v )
  */
 void	PmergeMe::sort()
 {
-	#ifdef DEBUG
-		display_vec(_vec, "input");
-	#endif
-	
-	double	start;
-	double	end;
-	double	vec_time;
-	// double	deq_time;
+	_display_vector(_vec, "Before");
 
-	start = _now_us();
+	// time vector
+	double start = _now_us();
 	_ford_johnson_sort_vector(_vec);
-	end = _now_us();
-	vec_time = end - start;
+	double vec_time = _now_us() - start;
 
-	_display_msg(_vec.size(), vec_time, VECTOR);
-
+	// // time deque
+	// start = _now_us();
 	// _ford_johnson_sort_deque(_deq);
+	// double deq_time = _now_us() - start;
+
+	// // AFTER (print from _vec, now sorted)
+	// _print_vec(_vec, "After");
+
+	_display_msg(_vec.size(), vec_time, "vector");
+	// _display_msg(_deq.size(), deq_time, "deque");
 }
 
 const char	*PmergeMe::ValidationException::what() const throw()
