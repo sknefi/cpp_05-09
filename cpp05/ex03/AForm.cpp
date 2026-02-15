@@ -46,29 +46,29 @@ AForm &AForm::operator=( const AForm &src )
 	return (*this);
 }
 
-const std::string	AForm::get_name() const
+const std::string	AForm::getName() const
 {
 	return (_name);
 }
 
-bool				AForm::get_is_signed() const
+bool				AForm::getIsSigned() const
 {
 	return (_is_signed);
 }
 
-int					AForm::get_grade_to_sign() const
+int					AForm::getGradeToSign() const
 {
 	return (_grade_to_sign);
 }
 
-int					AForm::get_grade_to_exec() const
+int					AForm::getGradeToExec() const
 {
 	return (_grade_to_exec);
 }
 
 void	AForm::beSigned( const Bureaucrat &b )
 {
-	if (b.get_grade() > _grade_to_sign)
+	if (b.getGrade() > _grade_to_sign)
 		throw GradeTooLowException();
 	_is_signed = true;
 }
@@ -90,9 +90,9 @@ const char *AForm::FormNotSignedException::what() const throw()
 
 std::ostream	&operator <<	( std::ostream &stream, const AForm &f )
 {
-	stream	<< "Form " << f.get_name() << " is " << (f.get_is_signed() ? "signed" : "not signed")
-			<< ", grade to sign: " << f.get_grade_to_sign() << " and grade to execute: "
-			<< f.get_grade_to_exec() << ".";
+	stream	<< "Form " << f.getName() << " is " << (f.getIsSigned() ? "signed" : "not signed")
+			<< ", grade to sign: " << f.getGradeToSign() << " and grade to execute: "
+			<< f.getGradeToExec() << ".";
 	return (stream);
 }
 

@@ -43,9 +43,9 @@ const std::string	&PresidentialPardonForm::getTarget() const
 
 void	PresidentialPardonForm::execute( const Bureaucrat &executor ) const
 {
-	if (!get_is_signed())
+	if (!getIsSigned())
 		throw FormNotSignedException();
-	if (executor.get_grade() > get_grade_to_exec())
+	if (executor.getGrade() > getGradeToExec())
 		throw GradeTooLowException();
 
 	std::cout << _target << " has been pardoned by Zaphod Beeblebrox" << std::endl;

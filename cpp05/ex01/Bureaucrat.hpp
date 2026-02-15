@@ -24,8 +24,8 @@ public:
 
 	Bureaucrat		&operator =		( const Bureaucrat &src );
 
-	const std::string	get_name() const;
-	int					get_grade() const;
+	const std::string	getName() const;
+	int					getGrade() const;
 
 	void	increment();
 	void	decrement();

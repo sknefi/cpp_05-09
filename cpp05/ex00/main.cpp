@@ -9,11 +9,11 @@ int main()
 		std::cout << a;
 
 		a.increment();
-		std::cout << "After increment: " << a.get_name()
-				  << " has grade " << a.get_grade() << std::endl;
+		std::cout << "After increment: " << a.getName()
+				  << " has grade " << a.getGrade() << std::endl;
 		a.decrement();
-		std::cout << "After decrement: " << a.get_name()
-		<< " has grade " << a.get_grade() << std::endl;
+		std::cout << "After decrement: " << a.getName()
+		<< " has grade " << a.getGrade() << std::endl;
 
 	}
 	catch (const std::exception &e)
@@ -29,7 +29,7 @@ int main()
 		Bureaucrat high("High", MAX_GRADE);
 		std::cout << high;
 
-		std::cout << "Trying to increment " << high.get_name() << std::endl;
+		std::cout << "Trying to increment " << high.getName() << std::endl;
 		high.increment(); // should throw GradeTooHighException
 	}
 	catch (const std::exception &e)
@@ -45,7 +45,7 @@ int main()
 		Bureaucrat low("Low", MIN_GRADE);
 		std::cout << low;
 
-		std::cout << "Trying to decrement " << low.get_name() << std::endl;
+		std::cout << "Trying to decrement " << low.getName() << std::endl;
 		low.decrement(); // should throw GradeTooLowException
 	}
 	catch (const std::exception &e)

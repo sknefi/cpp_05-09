@@ -24,10 +24,10 @@ public:
 
 	Form		&operator =		( const Form &src );
 
-	const std::string	get_name() const;
-	bool				get_is_signed() const;
-	int					get_grade_to_sign() const;
-	int					get_grade_to_exec() const;
+	const std::string	getName() const;
+	bool				getIsSigned() const;
+	int					getGradeToSign() const;
+	int					getGradeToExec() const;
 	void				beSigned( const Bureaucrat &b );
 
 	class GradeTooHighException : public std::exception

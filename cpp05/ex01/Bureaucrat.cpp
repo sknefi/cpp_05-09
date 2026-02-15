@@ -36,12 +36,12 @@ Bureaucrat &Bureaucrat::operator=( const Bureaucrat &src )
 	return (*this);
 }
 
-const std::string	Bureaucrat::get_name() const 
+const std::string	Bureaucrat::getName() const 
 {
 	return (_name);
 }
 
-int					Bureaucrat::get_grade() const
+int					Bureaucrat::getGrade() const
 {
 	return (_grade);
 }
@@ -62,19 +62,19 @@ void	Bureaucrat::decrement()
 
 void	Bureaucrat::signForm( Form &form )
 {
-	if (form.get_is_signed())
+	if (form.getIsSigned())
 	{
-		std::cout << _name << " cannot sign Form " << form.get_name() << " because it is already signed." << std::endl;
+		std::cout << _name << " cannot sign Form " << form.getName() << " because it is already signed." << std::endl;
 		return ;
 	}
 	try
 	{
 		form.beSigned(*this);
-		std::cout << _name << " signed Form " << form.get_name() << "." << std::endl;
+		std::cout << _name << " signed Form " << form.getName() << "." << std::endl;
 	}
 	catch (std::exception &e)
 	{
-		std::cout << _name << " cannot sign Form " << form.get_name() << " because " << e.what() << std::endl;
+		std::cout << _name << " cannot sign Form " << form.getName() << " because " << e.what() << std::endl;
 	}
 }
 
@@ -90,7 +90,7 @@ const char *Bureaucrat::GradeTooLowException::what() const throw()
 
 std::ostream	&operator <<	( std::ostream &stream, const Bureaucrat &b )
 {
-	stream << b.get_name() << ", bureaucrat grade " << b.get_grade() << "." << std::endl;
+	stream << b.getName() << ", bureaucrat grade " << b.getGrade() << "." << std::endl;
 	return (stream);
 }
 
