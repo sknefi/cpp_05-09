@@ -24,11 +24,11 @@ Base	*generate()
 void	identify( Base *p )
 {
 	if (dynamic_cast<A *>(p))
-		std::cout << "it's A" << std::endl;
+		std::cout << "A" << std::endl;
 	else if (dynamic_cast<B *>(p))
-		std::cout << "it's B" << std::endl;
+		std::cout << "B" << std::endl;
 	else if (dynamic_cast<C *>(p))
-		std::cout << "it's C" << std::endl;
+		std::cout << "C" << std::endl;
 	else
 		std::cout << "can't be identified, who did this" << std::endl;
 }
@@ -39,7 +39,7 @@ void	identify( Base &p )
 	{
 		A	&a = dynamic_cast<A &>(p);
 		(void)a;
-		std::cout << "it's A" << std::endl;
+		std::cout << "A" << std::endl;
 		return ;
 	}
 	catch(std::exception const &e) {}
@@ -48,7 +48,7 @@ void	identify( Base &p )
 	{
 		B	&b = dynamic_cast<B &>(p);
 		(void)b;
-		std::cout << "it's B" << std::endl;
+		std::cout << "B" << std::endl;
 		return ;
 	}
 	catch(std::exception const &e) {}
@@ -57,7 +57,7 @@ void	identify( Base &p )
 	{
 		C	&c = dynamic_cast<C &>(p);
 		(void)c;
-		std::cout << "it's C" << std::endl;
+		std::cout << "C" << std::endl;
 		return ;
 	}
 	catch(std::exception const &e) {}

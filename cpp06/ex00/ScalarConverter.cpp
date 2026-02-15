@@ -1,5 +1,13 @@
 #include "ScalarConverter.hpp"
 
+static void	print_all_impossible()
+{
+	std::cout << "char: impossible" << std::endl;
+	std::cout << "int: impossible" << std::endl;
+	std::cout << "float: impossible" << std::endl;
+	std::cout << "double: impossible" << std::endl;
+}
+
 ScalarConverter::ScalarConverter()
 {
 }
@@ -38,12 +46,12 @@ void	ScalarConverter::convert( std::string const &literal )
 	double	d = std::strtod(literal.c_str(), &end_ptr);
 	if (literal.c_str() == end_ptr) // end_ptr didn't move => no number found
 	{
-		std::cout << "Error: No number found" << std::endl;
+		print_all_impossible();
 		return ;
 	}
 	if (*end_ptr != '\0' && *end_ptr != 'f') // if found something else then 0 or f => garbage
 	{
-		std::cout << "Error: Invalid literal" << std::endl;
+		print_all_impossible();
 		return ;
 	}
 
