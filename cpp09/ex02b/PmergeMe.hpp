@@ -70,31 +70,60 @@ private:
 	 */
 	void	_ford_johnson_sort_vector( std::vector<int> &v );
 	
-	// --- Vector helpers ---
-	void	_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem,
-								  std::vector< std::pair<int, int> > &pairs );
+	/**
+	 * Create pairs, where each pair.first < pair.second
+	 * 
+	 * @param v - vector to create pairs from
+	 * @param has_rem - flag to check if there is odd number of numbers
+	 * @param rem - remaining number
+	 * @return vector of pairs
+	 */
+	std::vector< std::pair<int, int> >	
+			_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem );
+	
+	/**
+	 * Extract smalls and bigs from pairs: 
+	 * 		in smalls store smaller number from pair
+	 * 		in bigs store bigger number from pair
+	 * 
+	 * @param p - pairs to extract smalls and bigs from
+	 * @param smalls - vector to store smaller numbers
+	 * @param bigs - vector to store bigger numbers
+	 * @return void
+	 */
 	void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const &p,
 									  std::vector<int> &smalls,
 									  std::vector<int> &bigs );
-	void	_insert_smalls_to_bigs( std::vector<int> &bigs,
-									std::vector<size_t> const &fj_seq,
-									std::vector< std::pair<int, int> > const &pairs );
-	void	_insert_rem_to_bigs( std::vector<int> &bigs, int const rem );
+	
+	/**
+	 * Create Ford Jhonson sequence, where each number is unique and in ascending order,
+	 * it will help us reduce number of comparisons
+	 * 
+	 * @param k - number of pairs
+	 * @return vector of indices
+	 */
+	std::vector<size_t>		_ford_johnson_sequence( size_t const k );
 
-	// --- Deque helpers ---
-	void	_ford_johnson_sort_deque( std::deque<int> &d );
-	void	_create_pairs_deque( std::deque<int> const &d, bool &has_rem, int &rem,
-								 std::deque< std::pair<int, int> > &pairs );
-	void	_extract_smalls_and_bigs_deque( std::deque< std::pair<int,int> > const &p,
-											std::deque<int> &smalls,
-											std::deque<int> &bigs );
-	void	_insert_smalls_to_bigs_deque( std::deque<int> &bigs,
-										  std::vector<size_t> const &fj_seq,
-										  std::deque< std::pair<int, int> > const &pairs );
-	void	_insert_rem_to_bigs_deque( std::deque<int> &bigs, int const rem );
+	/**
+	 * Insert small number from pair to bigs, using Ford Jhonson sequence
+	 * 
+	 * @param bigs - vector to insert small numbers to
+	 * @param fj_seq - Ford Jhonson sequence (indices to insert small numbers to)
+	 * @param pairs - pairs to insert small numbers from
+	 * @return void
+	 */
+	void					_insert_smalls_to_bigs( std::vector<int> &bigs,
+													std::vector<size_t> const &fj_seq,
+													std::vector< std::pair<int, int> > const &pairs );
 
-	// --- Shared ---
-	void	_ford_johnson_sequence( size_t const k, std::vector<size_t> &seq );
+	/**
+	 * Insert remainder to bigs if odd number of numbers
+	 * 
+	 * @param bigs - vector to insert remainder to
+	 * @param rem - remainder number
+	 * @return void
+	 */
+	void					_insert_rem_to_bigs( std::vector<int> &bigs, int const rem );
 
 public:
 	PmergeMe();
