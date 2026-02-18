@@ -69,6 +69,7 @@ private:
 	 * @return void
 	 */
 	void	_ford_johnson_sort_vector( std::vector<int> &v );
+	void	_ford_johnson_sort_deque( std::deque<int> &d );
 	
 	// --- Vector helpers ---
 	void	_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem,
@@ -82,7 +83,6 @@ private:
 	void	_insert_rem_to_bigs( std::vector<int> &bigs, int const rem );
 
 	// --- Deque helpers ---
-	void	_ford_johnson_sort_deque( std::deque<int> &d );
 	void	_create_pairs_deque( std::deque<int> const &d, bool &has_rem, int &rem,
 								 std::deque< std::pair<int, int> > &pairs );
 	void	_extract_smalls_and_bigs_deque( std::deque< std::pair<int,int> > const &p,
