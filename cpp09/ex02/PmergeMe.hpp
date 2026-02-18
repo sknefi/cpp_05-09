@@ -32,11 +32,12 @@ public:
 
 	PmergeMe	&operator=( PmergeMe const &other );
 
-	void		set_input( std::string const &input );
-	double		sort();
-	void		display( std::string const &label ) const;
-	size_t		size() const;
-	Container const	&data() const;
+	void			set_input( std::string const &input );
+	double			sort();
+	void			display( std::string const &label ) const;
+
+	size_t			size() const;
+	Container const	&get_data() const;
 
 	class ValidationException : public std::exception
 	{

@@ -37,6 +37,26 @@ PmergeMe<Container>	&PmergeMe<Container>::operator=( PmergeMe const &other )
 	return *this;
 }
 
+#ifdef DEBUG
+template <typename Container>
+static void		debug_print_container( Container const &c, std::string const &label )
+{
+	std::cout << label << ": ";
+	for (size_t i = 0; i < c.size(); ++i)
+		std::cout << c[i] << " ";
+	std::cout << std::endl;
+}
+
+template <typename Container>
+void	debug_print_seq( std::vector<size_t> const &seq, std::string const &label )
+{
+	std::cout << label << ": ";
+	for (size_t i = 0; i < seq.size(); ++i)
+		std::cout << seq[i] << " ";
+	std::cout << std::endl;
+}
+#endif
+
 template <typename Container>
 double	PmergeMe<Container>::_now_us() const
 {
@@ -64,10 +84,17 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 		if (value <= 0 || value > INT_MAX)
 			throw ValidationException();
 		_data.push_back(static_cast<int>(value));
+		#ifdef DEBUG
+			std::cout << "parsed token: " << token << std::endl;
+		#endif
 	}
 
 	if (_data.empty())
 		throw ValidationException();
+
+	#ifdef DEBUG
+		debug_print_container(_data, "parsed input");
+	#endif
 }
 
 template <typename Container>
@@ -104,6 +131,10 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t k, std::vector<size_t> 
 	}
 	for (size_t x = k; x > prev_m; --x)
 		seq.push_back(x - 1);
+
+	#ifdef DEBUG
+		debug_print_seq(seq, "fj_seq");
+	#endif
 }
 
 template <typename Container>
@@ -157,18 +188,38 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	if (c.size() <= 1)
 		return;
 
+	#ifdef DEBUG
+		std::cout << "---- ford_johnson_sort size=" << c.size() << " ----" << std::endl;
+		debug_print_container(c, "input");
+	#endif
+
 	bool		has_rem;
 	int			rem;
 	Container	smalls;
 	Container	bigs;
 	_create_pairs(c, has_rem, rem, smalls, bigs);
 
+	#ifdef DEBUG
+		debug_print_container(smalls, "smalls");
+		debug_print_container(bigs, "bigs (pre-rec)");
+		if (has_rem)
+			std::cout << "remainder: " << rem << std::endl;
+	#endif
+
 	_ford_johnson_sort(bigs);
+
+	#ifdef DEBUG
+		debug_print_container(bigs, "bigs (sorted)");
+	#endif
 
 	Container	bigs_snapshot = bigs;
 	std::vector<size_t>	fj_seq;
 	_ford_johnson_sequence(smalls.size(), fj_seq);
 	_insert_smalls_to_bigs(bigs, fj_seq, smalls, bigs_snapshot);
+
+	#ifdef DEBUG
+		debug_print_container(bigs, "after small insert");
+	#endif
 
 	if (has_rem)
 		_insert_rem_to_bigs(bigs, rem);
@@ -206,7 +257,7 @@ size_t	PmergeMe<Container>::size() const
 }
 
 template <typename Container>
-Container const	&PmergeMe<Container>::data() const
+Container const	&PmergeMe<Container>::get_data() const
 {
 	return _data;
 }
