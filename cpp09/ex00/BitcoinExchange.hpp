@@ -10,6 +10,7 @@
 # include <sstream>
 # include <iomanip>
 # include <stdexcept>
+# include <cstdlib>
 
 typedef std::string	Date;
 typedef double		ExchangeRate;
