@@ -4,7 +4,6 @@ CPP = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRCS = \
-	PmergeMe.cpp \
 	main.cpp 
 
 OBJ_DIR = obj
