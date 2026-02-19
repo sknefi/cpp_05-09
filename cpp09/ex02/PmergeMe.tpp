@@ -47,15 +47,6 @@ static void		debug_print_container( Container const &c, std::string const &label
 		std::cout << c[i] << " ";
 	std::cout << std::endl;
 }
-
-template <typename Container>
-void	debug_print_seq( std::vector<size_t> const &seq, std::string const &label )
-{
-	std::cout << label << ": ";
-	for (size_t i = 0; i < seq.size(); ++i)
-		std::cout << seq[i] << " ";
-	std::cout << std::endl;
-}
 #endif
 
 template <typename Container>
@@ -137,7 +128,7 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t k, std::vector<size_t> 
 		seq.push_back(x - 1);
 
 	#ifdef DEBUG
-		debug_print_seq(seq, "fj_seq");
+		debug_print_container(seq, "fj_seq");
 	#endif
 }
 
@@ -194,6 +185,13 @@ size_t	PmergeMe<Container>::_binary_search_pos( Container const &c,
 	while (left < right)
 	{
 		size_t	mid = left + (right - left) / 2;
+		#ifdef DEBUG
+			if (c.size() <= 21)
+			{
+				std::cerr << "[cmp] c[" << mid << "]=" << c[mid]
+						<< " < " << value << " ?  (range [" << left << ", " << right << "))\n";
+			}
+		#endif
 		if (c[mid] < value)
 			left = mid + 1;
 		else
