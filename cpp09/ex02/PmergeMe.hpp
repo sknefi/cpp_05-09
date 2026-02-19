@@ -39,8 +39,8 @@ private:
 	 *  2. Split into smalls/bigs
 	 *  3. Recursively sort bigs
 	 *  4. Build insertion order (Jacobsthal-based)
-	 *  5. Insert smalls into the sorted bigs
-	 *  6. Insert remainder if odd count
+	 *  5. Insert smalls into the sorted bigs (binary search for the position)
+	 *  6. Insert remainder if odd count (binary search for the position)
 	 * @param &c - reference to the container to sort
 	 */
 	void	_ford_johnson_sort( Container &c );
@@ -78,6 +78,17 @@ private:
 	 * @param int rem - the remainder
 	 */
 	void	_insert_rem_to_bigs( Container &bigs, int rem ) const;
+	
+	/**
+	 * Binary search for the position of the value in the container
+	 * between the left and right indices using the binary search algorithm.
+	 * @param Container const &c - reference to the container
+	 * @param size_t left - the left index
+	 * @param size_t right - the right index
+	 * @param int value - the value to search for
+	 * @return the position of the value in the container
+	 */
+	size_t	_binary_search_pos( Container const &c, size_t left, size_t right, int value ) const;
 
 public:
 	PmergeMe();

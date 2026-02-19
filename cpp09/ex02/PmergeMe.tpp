@@ -168,18 +168,34 @@ void	PmergeMe<Container>::_insert_smalls_to_bigs( Container &bigs,
 		size_t	idx = fj_seq[i];
 		int		small = smalls[idx];
 		int		big = bigs_snapshot[idx];
-
-		typename Container::iterator	it_big = std::lower_bound(bigs.begin(), bigs.end(), big);
-		typename Container::iterator	it_small = std::lower_bound(bigs.begin(), it_big, small);
-		bigs.insert(it_small, small);
+		size_t	big_pos = _binary_search_pos(bigs, 0, bigs.size(), big);
+		size_t	small_pos = _binary_search_pos(bigs, 0, big_pos, small);
+		bigs.insert(bigs.begin() + small_pos, small);
 	}
 }
 
 template <typename Container>
 void	PmergeMe<Container>::_insert_rem_to_bigs( Container &bigs, int rem ) const
 {
-	typename Container::iterator it_rem = std::lower_bound(bigs.begin(), bigs.end(), rem);
-	bigs.insert(it_rem, rem);
+	size_t	rem_pos = _binary_search_pos(bigs, 0, bigs.size(), rem);
+	bigs.insert(bigs.begin() + rem_pos, rem);
+}
+
+template <typename Container>
+size_t	PmergeMe<Container>::_binary_search_pos( Container const &c,
+												 size_t left,
+												 size_t right,
+												 int value ) const
+{
+	while (left < right)
+	{
+		size_t	mid = left + (right - left) / 2;
+		if (c[mid] < value)
+			left = mid + 1;
+		else
+			right = mid;
+	}
+	return left;
 }
 
 template <typename Container>
@@ -205,14 +221,14 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		if (has_rem)
 			std::cout << "remainder: " << rem << std::endl;
 	#endif
-
+	
+	Container	bigs_snapshot = bigs;
 	_ford_johnson_sort(bigs);
 
 	#ifdef DEBUG
 		debug_print_container(bigs, "bigs (sorted)");
 	#endif
 
-	Container	bigs_snapshot = bigs;
 	std::vector<size_t>	fj_seq;
 	_ford_johnson_sequence(smalls.size(), fj_seq);
 	_insert_smalls_to_bigs(bigs, fj_seq, smalls, bigs_snapshot);
