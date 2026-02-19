@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <set>
 #include <sys/time.h>
 #include "PmergeMe.hpp"
 
@@ -69,6 +70,7 @@ template <typename Container>
 void	PmergeMe<Container>::_parse_input( std::string const &input )
 {
 	_data.clear();
+	std::set<int>	seen;
 
 	std::istringstream	iss(input);
 	std::string			token;
@@ -82,6 +84,8 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 
 		long value = std::strtol(token.c_str(), 0, 10);
 		if (value <= 0 || value > INT_MAX)
+			throw ValidationException();
+		if (!seen.insert(static_cast<int>(value)).second)
 			throw ValidationException();
 		_data.push_back(static_cast<int>(value));
 		#ifdef DEBUG
@@ -281,5 +285,5 @@ Container const	&PmergeMe<Container>::get_data() const
 template <typename Container>
 const char	*PmergeMe<Container>::ValidationException::what() const throw()
 {
-	return "VALIDATION - wrong input, usage: a positive integer sequence";
+	return "VALIDATION - wrong input, usage: unique positive integer sequence";
 }
