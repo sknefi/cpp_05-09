@@ -93,15 +93,16 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 }
 
 template <typename Container>
-void	PmergeMe<Container>::_ford_johnson_sequence( size_t k, std::vector<size_t> &seq ) const
+void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector<size_t> &seq ) const
 {
 	seq.clear();
-	if (k == 0)
+	if (pend_count == 0)
 		return;
-	seq.reserve(k);
+	seq.reserve(pend_count);
 
-	std::vector<size_t>	milestones;
-	milestones.push_back(1);
+	// pend indices map to labels [b2, b3, ..., b(max_b)]
+	size_t	max_b = pend_count + 1;
+	size_t	prev_j = 1;
 
 	size_t	j_prev = 0;
 	size_t	j_curr = 1;
@@ -110,22 +111,14 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t k, std::vector<size_t> 
 		size_t	j_next = j_curr + 2 * j_prev;
 		j_prev = j_curr;
 		j_curr = j_next;
-		if (j_curr > k)
+		if (j_curr > max_b)
 			break;
-		milestones.push_back(j_curr);
+		for (size_t b = j_curr; b > prev_j; --b)
+			seq.push_back(b - 2);
+		prev_j = j_curr;
 	}
-
-	seq.push_back(0);
-	size_t	prev_m = 1;
-	for (size_t mi = 1; mi < milestones.size(); ++mi)
-	{
-		size_t m = milestones[mi];
-		for (size_t x = m; x > prev_m; --x)
-			seq.push_back(x - 1);
-		prev_m = m;
-	}
-	for (size_t x = k; x > prev_m; --x)
-		seq.push_back(x - 1);
+	for (size_t b = max_b; b > prev_j; --b)
+		seq.push_back(b - 2);
 
 	#ifdef DEBUG
 		debug_print_container(seq, "fj_seq");
@@ -153,27 +146,30 @@ void	PmergeMe<Container>::_create_pairs( Container const &c, bool &has_rem, int 
 }
 
 template <typename Container>
-void	PmergeMe<Container>::_insert_smalls_to_bigs( Container &bigs,
-													 std::vector<size_t> const &fj_seq,
-													 Container const &smalls,
-													 Container const &bigs_snapshot ) const
+void	PmergeMe<Container>::_insert_pend_to_chain( Container &chain,
+													std::vector<size_t> const &fj_seq,
+													Container const &smalls,
+													std::vector<size_t> &big_pos,
+													bool has_rem,
+													int rem ) const
 {
+	size_t	small_pend_count = smalls.size() > 0 ? smalls.size() - 1 : 0;
+
 	for (size_t i = 0; i < fj_seq.size(); ++i)
 	{
-		size_t	idx = fj_seq[i];
-		int		small = smalls[idx];
-		int		big = bigs_snapshot[idx];
-		size_t	big_pos = _binary_search_pos(bigs, 0, bigs.size(), big);
-		size_t	small_pos = _binary_search_pos(bigs, 0, big_pos, small);
-		bigs.insert(bigs.begin() + small_pos, small);
-	}
-}
+		size_t	pend_idx = fj_seq[i];
+		bool	is_odd = has_rem && pend_idx == small_pend_count;
+		int		value = is_odd ? rem : smalls[pend_idx + 1];
+		size_t	bound = is_odd ? chain.size() : big_pos[pend_idx + 1];
+		size_t	pos = _binary_search_pos(chain, 0, bound, value);
+		chain.insert(chain.begin() + pos, value);
 
-template <typename Container>
-void	PmergeMe<Container>::_insert_rem_to_bigs( Container &bigs, int rem ) const
-{
-	size_t	rem_pos = _binary_search_pos(bigs, 0, bigs.size(), rem);
-	bigs.insert(bigs.begin() + rem_pos, rem);
+		for (size_t j = 0; j < big_pos.size(); ++j)
+		{
+			if (big_pos[j] >= pos)
+				++big_pos[j];
+		}
+	}
 }
 
 template <typename Container>
@@ -216,6 +212,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	Container	smalls;
 	Container	bigs;
 	_create_pairs(c, has_rem, rem, smalls, bigs);
+	Container	orig_bigs = bigs;
 
 	#ifdef DEBUG
 		debug_print_container(smalls, "smalls");
@@ -224,25 +221,50 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 			std::cout << "remainder: " << rem << std::endl;
 	#endif
 	
-	Container	bigs_snapshot = bigs;
 	_ford_johnson_sort(bigs);
 
 	#ifdef DEBUG
 		debug_print_container(bigs, "bigs (sorted)");
 	#endif
 
+	// Align smalls with recursively sorted bigs (preserve pair identity)
+	// without associative containers.
+	Container	sorted_smalls;
+	for (size_t i = 0; i < bigs.size(); ++i)
+	{
+		size_t	orig_idx = 0;
+		while (orig_idx < orig_bigs.size())
+		{
+			if (orig_bigs[orig_idx] == bigs[i])
+				break;
+			++orig_idx;
+		}
+		if (orig_idx == orig_bigs.size())
+			throw ValidationException();
+		sorted_smalls.push_back(smalls[orig_idx]);
+	}
+
+	// Canonical main chain initialization: [b1, a1, a2, ...]
+	Container	chain;
+	chain.push_back(sorted_smalls[0]);
+	for (size_t i = 0; i < bigs.size(); ++i)
+		chain.push_back(bigs[i]);
+
+	// Current positions of partner a_i in main chain.
+	std::vector<size_t>	big_pos(bigs.size());
+	for (size_t i = 0; i < bigs.size(); ++i)
+		big_pos[i] = i + 1;
+
+	size_t pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);
 	std::vector<size_t>	fj_seq;
-	_ford_johnson_sequence(smalls.size(), fj_seq);
-	_insert_smalls_to_bigs(bigs, fj_seq, smalls, bigs_snapshot);
+	_ford_johnson_sequence(pend_count, fj_seq);
+	_insert_pend_to_chain(chain, fj_seq, sorted_smalls, big_pos, has_rem, rem);
 
 	#ifdef DEBUG
-		debug_print_container(bigs, "after small insert");
+		debug_print_container(chain, "after pend insert");
 	#endif
 
-	if (has_rem)
-		_insert_rem_to_bigs(bigs, rem);
-
-	c.swap(bigs);
+	c.swap(chain);
 }
 
 template <typename Container>

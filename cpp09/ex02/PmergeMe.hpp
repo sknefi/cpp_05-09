@@ -26,11 +26,10 @@ private:
 	void	_parse_input( std::string const &input );
 
 	/**
-	 * Generate the Ford-Johnson sequence
-	 * @param k - the size of the container 
-	 * @param seq - the sequence to generate
+	 * Build pend insertion order (Jacobsthal groups then reverse tail).
+	 * Order is returned as 0-based indices into pend (b2 starts at index 0).
 	 */
-	void	_ford_johnson_sequence( size_t k, std::vector<size_t> &seq ) const;
+	void	_ford_johnson_sequence( size_t pend_count, std::vector<size_t> &seq ) const;
 	
 	/**
 	 * Ford-Johnson sort for container.
@@ -61,23 +60,14 @@ private:
 	
 	
 	/**
-	 * Insert the smalls into the bigs
-	 * @param Container &bigs - reference to the bigs container
-	 * @param std::vector<size_t> const &fj_seq - reference to the Ford-Johnson sequence
-	 * @param Container const &smalls - reference to the smalls container
-	 * @param Container const &bigs_snapshot - reference to the bigs container snapshot
+	 * Insert pend elements (b2.. and optional odd) into main chain.
 	 */
-	void	_insert_smalls_to_bigs( Container &bigs,
-									std::vector<size_t> const &fj_seq,
-									Container const &smalls,
-									Container const &bigs_snapshot ) const;
-
-	/**
-	 * Insert the remainder into the bigs
-	 * @param Container &bigs - reference to the bigs container
-	 * @param int rem - the remainder
-	 */
-	void	_insert_rem_to_bigs( Container &bigs, int rem ) const;
+	void	_insert_pend_to_chain( Container &chain,
+								   std::vector<size_t> const &fj_seq,
+								   Container const &smalls,
+								   std::vector<size_t> &big_pos,
+								   bool has_rem,
+								   int rem ) const;
 	
 	/**
 	 * Binary search for the position of the value in the container
