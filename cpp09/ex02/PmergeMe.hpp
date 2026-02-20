@@ -1,10 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <deque>
-#include <string>
-#include <exception>
-#include <utility>
+# include <vector>
+# include <deque>
+# include <string>
+# include <exception>
+# include <utility>
+
+# define DEBUG_VAL 21
 
 template <typename Container>
 class PmergeMe

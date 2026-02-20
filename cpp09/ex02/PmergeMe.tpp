@@ -42,10 +42,10 @@ PmergeMe<Container>	&PmergeMe<Container>::operator=( PmergeMe const &other )
 template <typename Container>
 static void		debug_print_container( Container const &c, std::string const &label )
 {
-	std::cout << label << ": ";
+	std::cerr << label << ": ";
 	for (size_t i = 0; i < c.size(); ++i)
-		std::cout << c[i] << " ";
-	std::cout << std::endl;
+		std::cerr << c[i] << " ";
+	std::cerr << std::endl;
 }
 #endif
 
@@ -80,7 +80,7 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 			throw ValidationException();
 		_data.push_back(static_cast<int>(value));
 		#ifdef DEBUG
-			std::cout << "parsed token: " << token << std::endl;
+			std::cerr << "parsed token: " << token << std::endl;
 		#endif
 	}
 
@@ -182,7 +182,7 @@ size_t	PmergeMe<Container>::_binary_search_pos( Container const &c,
 	{
 		size_t	mid = left + (right - left) / 2;
 		#ifdef DEBUG
-			if (c.size() <= 21)
+			if (c.size() <= DEBUG_VAL)
 			{
 				std::cerr << "[cmp] c[" << mid << "]=" << c[mid]
 						<< " < " << value << " ?  (range [" << left << ", " << right << "))\n";
@@ -203,7 +203,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		return;
 
 	#ifdef DEBUG
-		std::cout << "---- ford_johnson_sort size=" << c.size() << " ----" << std::endl;
+		std::cerr << "---- ford_johnson_sort size=" << c.size() << " ----" << std::endl;
 		debug_print_container(c, "input");
 	#endif
 
@@ -218,7 +218,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		debug_print_container(smalls, "smalls");
 		debug_print_container(bigs, "bigs (pre-rec)");
 		if (has_rem)
-			std::cout << "remainder: " << rem << std::endl;
+			std::cerr << "remainder: " << rem << std::endl;
 	#endif
 	
 	_ford_johnson_sort(bigs);
@@ -285,8 +285,14 @@ template <typename Container>
 void	PmergeMe<Container>::display( std::string const &label ) const
 {
 	std::cout << label << ": ";
-	for (size_t i = 0; i < _data.size(); ++i)
-		std::cout << _data[i] << " ";
+
+	if (_data.size() < DEBUG_VAL)
+	{
+		for (size_t i = 0; i < _data.size(); ++i)
+			std::cout << _data[i] << " ";
+	}
+	else
+		std::cout << "[...]";
 	std::cout << std::endl;
 }
 

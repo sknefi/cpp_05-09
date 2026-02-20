@@ -58,3 +58,22 @@
 - `1 2` → `Error: Invalid expression`
 - `1 2 +` → OK (single result)
 CPP09 Edge Cases (ex00 + ex01)
+
+## ex02 - Ford-Jhonson Algorithm
+
+### Test MacOS
+``` bash
+./PmergeMe `jot -r 3000 1 100000 | tr '\n' ' '`
+```
+
+### Test Linux
+```
+./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
+```
+
+### Get count of comparisions
+```
+./PmergeMe $(shuf -i 1-1000 -n 21) 2>&1 | grep -c '^\[cmp\]'
+```
+2>&1 because all debugs are in cerr (standard error)
+

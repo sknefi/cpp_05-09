@@ -3,9 +3,6 @@
 #include <iostream>
 #include <iomanip>
 
-#define VECTOR "vector"
-#define DEQUE "deque"
-
 static std::string	merge_argv( int argc, char *argv[] )
 {
 	std::string	merged_str;
@@ -29,9 +26,9 @@ int		main( int argc, char *argv[] )
 
 	try
 	{
-		std::string					input = merge_argv(argc, argv);
+		std::string						input = merge_argv(argc, argv);
 		PmergeMe< std::vector<int> >	vec_sorter(input);
-		PmergeMe< std::deque<int> >	deq_sorter(input);
+		PmergeMe< std::deque<int> >		deq_sorter(input);
 
 		vec_sorter.display("Before");
 		double vec_time = vec_sorter.sort();
@@ -41,7 +38,7 @@ int		main( int argc, char *argv[] )
 		std::cout << "Time to process a range of "
 				  << vec_sorter.size()
 				  << " elements with std::"
-				  << VECTOR
+				  << "vector"
 				  << " : "
 				  << std::fixed << std::setprecision(5)
 				  << vec_time
@@ -49,7 +46,7 @@ int		main( int argc, char *argv[] )
 		std::cout << "Time to process a range of "
 				  << deq_sorter.size()
 				  << " elements with std::"
-				  << DEQUE
+				  << "deque"
 				  << " : "
 				  << std::fixed << std::setprecision(5)
 				  << deq_time
