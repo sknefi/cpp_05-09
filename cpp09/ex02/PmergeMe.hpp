@@ -4,108 +4,96 @@
 #include <deque>
 #include <string>
 #include <exception>
+#include <utility>
 
-/**
-	fj_		-> Ford Johnson
-	j_		-> Jacobsthal
-	m_		-> milestone
-	it		-> iterator
-	rem		-> remainder
-	us		-> micro seconds
-*/
-
-# define VECTOR "vector"
-# define DEQUE "deque"
-
+template <typename Container>
 class PmergeMe
 {
 private:
-	std::vector<int>	_vec; // 1st container
-	std::deque<int>		_deq; // 2nd container
-	
-	
-	/**
-	 * Get current time in micro seconds
-	 * @return current time in micro seconds
-	 */
-	double	_now_us();
+	Container	_data;
 
 	/**
-	 * Display message from subject with time in micro seconds
-	 * @param n - number of elements
-	 * @param time_us - time in micro seconds
-	 * @param c_name - container name
+	 * Get the current time in microseconds
+	 * @return the current time in microseconds
 	 */
-	void	_display_msg( size_t n, double time_us, std::string c_name );
+	double	_now_us() const;
 
 	/**
-	 * Display vector from subject with name
-	 * @param v - vector to display
-	 * @param name - name of the vector
-	 */
-	void	_display_vector( std::vector<int> const &v, std::string const &name );
-	
-	/**
-	 * Parse the input string and fill both containers.
-	 * Throws ValidationException if:
-	 *  - token is not a number
-	 *  - number <= 0
-	 *  - number > INT_MAX
-	 * @param input - input string
-	 * @return void
+	 * Parse the input and store the data in the container
+	 * @param std::string const &input - the input to parse
+	 * @throws ValidationException - if the input is invalid
 	 */
 	void	_parse_input( std::string const &input );
+
+	/**
+	 * Build pend insertion order (Jacobsthal groups then reverse tail).
+	 * Order is returned as 0-based indices into pend (b2 starts at index 0).
+	 */
+	void	_ford_johnson_sequence( size_t pend_count, std::vector<size_t> &seq ) const;
 	
 	/**
-	 * Ford–Johnson sort for vector.
+	 * Ford-Johnson sort for container.
 	 * Steps:
 	 *  1. Pair up elements (min/max in each pair)
 	 *  2. Split into smalls/bigs
 	 *  3. Recursively sort bigs
 	 *  4. Build insertion order (Jacobsthal-based)
-	 *  5. Insert smalls into the sorted bigs
-	 *  6. Insert remainder if odd count
-	 * @param v - vector to sort
-	 * @return void
+	 *  5. Insert smalls into the sorted bigs (binary search for the position)
+	 *  6. Insert remainder if odd count (binary search for the position)
+	 * @param &c - reference to the container to sort
 	 */
-	void	_ford_johnson_sort_vector( std::vector<int> &v );
-	void	_ford_johnson_sort_deque( std::deque<int> &d );
+	void	_ford_johnson_sort( Container &c );
+
+	/**
+	 * Create pairs from the container
+	 * @param const &c - reference to the container
+	 * @param bool &has_rem - reference to the boolean to check if there is a remainder
+	 * @param int &rem - reference to the remainder
+	 * @param Container &smalls - reference to the smalls container
+	 * @param Container &bigs - reference to the bigs container
+	 */
+	void	_create_pairs( Container const &c,
+						   bool &has_rem,
+						   int &rem,
+						   Container &smalls,
+						   Container &bigs ) const;
 	
-	// --- Vector helpers ---
-	void	_create_pairs_vector( std::vector<int> const &v, bool &has_rem, int &rem,
-								  std::vector< std::pair<int, int> > &pairs );
-	void	_extract_smalls_and_bigs( std::vector< std::pair<int,int> > const &p,
-									  std::vector<int> &smalls,
-									  std::vector<int> &bigs );
-	void	_insert_smalls_to_bigs( std::vector<int> &bigs,
-									std::vector<size_t> const &fj_seq,
-									std::vector< std::pair<int, int> > const &pairs );
-	void	_insert_rem_to_bigs( std::vector<int> &bigs, int const rem );
-
-	// --- Deque helpers ---
-	void	_create_pairs_deque( std::deque<int> const &d, bool &has_rem, int &rem,
-								 std::deque< std::pair<int, int> > &pairs );
-	void	_extract_smalls_and_bigs_deque( std::deque< std::pair<int,int> > const &p,
-											std::deque<int> &smalls,
-											std::deque<int> &bigs );
-	void	_insert_smalls_to_bigs_deque( std::deque<int> &bigs,
-										  std::vector<size_t> const &fj_seq,
-										  std::deque< std::pair<int, int> > const &pairs );
-	void	_insert_rem_to_bigs_deque( std::deque<int> &bigs, int const rem );
-
-	// --- Shared ---
-	void	_ford_johnson_sequence( size_t const k, std::vector<size_t> &seq );
+	
+	/**
+	 * Insert pend elements (b2.. and optional odd) into main chain.
+	 */
+	void	_insert_pend_to_chain( Container &chain,
+								   std::vector<size_t> const &fj_seq,
+								   Container const &smalls,
+								   std::vector<size_t> &big_pos,
+								   bool has_rem,
+								   int rem ) const;
+	
+	/**
+	 * Binary search for the position of the value in the container
+	 * between the left and right indices using the binary search algorithm.
+	 * @param Container const &c - reference to the container
+	 * @param size_t left - the left index
+	 * @param size_t right - the right index
+	 * @param int value - the value to search for
+	 * @return the position of the value in the container
+	 */
+	size_t	_binary_search_pos( Container const &c, size_t left, size_t right, int value ) const;
 
 public:
 	PmergeMe();
-	PmergeMe( std::string const &input );
+	explicit PmergeMe( std::string const &input );
 	PmergeMe( PmergeMe const &other );
 	~PmergeMe();
 
-	PmergeMe &operator=( PmergeMe const &other );
+	PmergeMe	&operator=( PmergeMe const &other );
 
-	void	sort();
-	void	set_input( std::string const &input );
+	void			set_input( std::string const &input );
+	double			sort();
+	void			display( std::string const &label ) const;
+
+	size_t			size() const;
+	Container const	&get_data() const;
 
 	class ValidationException : public std::exception
 	{
@@ -113,3 +101,5 @@ public:
 		const char	*what() const throw();
 	};
 };
+
+#include "PmergeMe.tpp"

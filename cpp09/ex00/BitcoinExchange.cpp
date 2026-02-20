@@ -242,7 +242,7 @@ void	BitcoinExchange::_parse_db( std::string const &path )
 	if (path.substr(path.size() - 4) != ".csv") // check if file is .csv
 		throw std::runtime_error("File has to be in .csv format");
 	
-	std::ifstream	file(path);
+	std::ifstream	file(path.c_str());
 	if (!file.is_open())
 		throw std::runtime_error("DB (.csv file) could NOT be opened");
 	
@@ -311,7 +311,7 @@ static std::string	bad_input_token( std::string const &line )
 
 void	BitcoinExchange::_process_input_file( std::string const &path ) const
 {
-	std::ifstream	file(path);
+	std::ifstream	file(path.c_str());
 	if (!file.is_open())
 		throw std::runtime_error("could not open file.");
 
