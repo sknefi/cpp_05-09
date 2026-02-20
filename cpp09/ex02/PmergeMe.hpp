@@ -93,6 +93,7 @@ public:
 	void			set_input( std::string const &input );
 	double			sort();
 	void			display( std::string const &label ) const;
+	bool			is_sorted();
 
 	size_t			size() const;
 	Container const	&get_data() const;

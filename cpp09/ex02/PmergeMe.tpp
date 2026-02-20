@@ -50,6 +50,21 @@ static void		debug_print_container( Container const &c, std::string const &label
 #endif
 
 template <typename Container>
+bool	PmergeMe<Container>::is_sorted()
+{
+	if (_data.size() == 1)
+		return true;
+
+	for (size_t i = 1; i < _data.size(); i++)
+	{
+		if (_data[i - 1] > _data[i])
+			return false;
+	}
+	
+	return true;
+}
+
+template <typename Container>
 double	PmergeMe<Container>::_now_us() const
 {
 	timeval	tv;
@@ -212,7 +227,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	Container	smalls;
 	Container	bigs;
 	_create_pairs(c, has_rem, rem, smalls, bigs);
-	Container	orig_bigs = bigs;
+	Container	orig_bigs = bigs; // orig_bigs[i] and smalls[i] is pair 
 
 	#ifdef DEBUG
 		debug_print_container(smalls, "smalls");
@@ -229,30 +244,31 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 
 	// Align smalls with recursively sorted bigs (preserve pair identity)
 	// without associative containers.
+	#ifdef DEBUG
+		debug_print_container(orig_bigs, "===orig bigs");
+	#endif
 	Container	sorted_smalls;
-	for (size_t i = 0; i < bigs.size(); ++i)
+	for (size_t i = 0; i < bigs.size(); i++)
 	{
 		size_t	orig_idx = 0;
 		while (orig_idx < orig_bigs.size())
 		{
 			if (orig_bigs[orig_idx] == bigs[i])
 				break;
-			++orig_idx;
+			orig_idx++;
 		}
-		if (orig_idx == orig_bigs.size())
-			throw ValidationException();
 		sorted_smalls.push_back(smalls[orig_idx]);
 	}
 
 	// Canonical main chain initialization: [b1, a1, a2, ...]
 	Container	chain;
 	chain.push_back(sorted_smalls[0]);
-	for (size_t i = 0; i < bigs.size(); ++i)
+	for (size_t i = 0; i < bigs.size(); i++)
 		chain.push_back(bigs[i]);
 
 	// Current positions of partner a_i in main chain.
 	std::vector<size_t>	big_pos(bigs.size());
-	for (size_t i = 0; i < bigs.size(); ++i)
+	for (size_t i = 0; i < bigs.size(); i++)
 		big_pos[i] = i + 1;
 
 	size_t pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);

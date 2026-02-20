@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
+
 static std::string	merge_argv( int argc, char *argv[] )
 {
 	std::string	merged_str;
@@ -51,7 +52,10 @@ int		main( int argc, char *argv[] )
 				  << std::fixed << std::setprecision(5)
 				  << deq_time
 				  << " us" << std::endl;
-		std::cout << "OK" << std::endl;
+
+		#ifdef DEBUG		
+			std::cerr << ((vec_sorter.is_sorted() && deq_sorter.is_sorted()) ? "OK" : "WRONG") << std::endl;
+		#endif
 	}
 	catch (const std::exception &e)
 	{
