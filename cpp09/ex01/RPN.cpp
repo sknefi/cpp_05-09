@@ -1,6 +1,7 @@
 #include "RPN.hpp"
 #include <sstream>
 #include <cctype>
+#include <climits>
 
 RPN::RPN()
 {
@@ -34,17 +35,26 @@ static inline bool	is_operand( char c )
 
 static int	apply_operator( int a, int b, char op )
 {
-	if (op == '/' && b == 0)
-		throw std::runtime_error("Division by zero");
-	
+	long long	res = 0;
 	switch (op)
 	{
-		case '+': return a + b;
-		case '-': return a - b;
-		case '*': return a * b;
-		case '/': return a / b;
+		case '+': res = static_cast<long long>(a) + static_cast<long long>(b); break;
+		case '-': res = static_cast<long long>(a) - static_cast<long long>(b); break;
+		case '*': res = static_cast<long long>(a) * static_cast<long long>(b); break;
+		case '/':
+			if (op == '/' && b == 0)
+				throw std::runtime_error("Division by zero");
+			if (a == INT_MIN && b == -1)
+				throw std::runtime_error("Integer overflow");
+			return a / b;
+		default:
+			throw std::runtime_error("Invalid operator");
 	}
-	throw std::runtime_error("Invalid operator");
+
+	if (res < INT_MIN || res > INT_MAX)
+		throw std::runtime_error("Integer overflow");
+	
+	return static_cast<int>(res);
 }
 
 // 8 9 * 9 - 9 - 9 - 4 - 1 +
