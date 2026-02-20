@@ -1,4 +1,6 @@
 #include "RPN.hpp"
+#include <sstream>
+#include <cctype>
 
 RPN::RPN()
 {
@@ -48,13 +50,18 @@ static int	apply_operator( int a, int b, char op )
 // 8 9 * 9 - 9 - 9 - 4 - 1 +
 void	RPN::process_expression( std::string const &exp )
 {
-	for (size_t i = 0; i < exp.size(); i++)
+	std::istringstream	iss(exp);
+	std::string			token;
+
+	while (iss >> token)
 	{
-		if (exp[i] == ' ')
-			continue ;
-		if (is_operand(exp[i]))
-			_s.push(exp[i] - '0');
-		else if (is_operator(exp[i]))
+		if (token.size() != 1)
+			throw std::runtime_error("Invalid token");
+
+		char	c = token[0];
+		if (is_operand(c))
+			_s.push(c - '0');
+		else if (is_operator(c))
 		{
 			if (_s.size() < 2)
 				throw std::runtime_error("Invalid expression");
@@ -62,7 +69,7 @@ void	RPN::process_expression( std::string const &exp )
 			_s.pop();
 			int		a = _s.top();
 			_s.pop();
-			_s.push(apply_operator(a, b, exp[i]));
+			_s.push(apply_operator(a, b, c));
 		}
 		else
 			throw std::runtime_error("Invalid character");
