@@ -132,6 +132,10 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector
 			seq.push_back(b - 2);
 		prev_j = j_curr;
 	}
+
+	// Example with max_b = 11 (pend labels b2..b11):
+	// Jacobsthal groups produce: b3,b2 then b5,b4 then b11,b10,b9,b8,b7,b6
+	// Stored as 0-based pend indices: 1,0,3,2,9,8,7,6,5,4
 	for (size_t b = max_b; b > prev_j; --b)
 		seq.push_back(b - 2);
 
@@ -170,7 +174,7 @@ void	PmergeMe<Container>::_insert_pend_to_chain( Container &chain,
 {
 	size_t	small_pend_count = smalls.size() > 0 ? smalls.size() - 1 : 0;
 
-	for (size_t i = 0; i < fj_seq.size(); ++i)
+	for (size_t i = 0; i < fj_seq.size(); i++)
 	{
 		size_t	pend_idx = fj_seq[i];
 		bool	is_odd = has_rem && pend_idx == small_pend_count;

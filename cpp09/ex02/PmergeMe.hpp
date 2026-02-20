@@ -36,12 +36,12 @@ private:
 	/**
 	 * Ford-Johnson sort for container.
 	 * Steps:
-	 *  1. Pair up elements (min/max in each pair)
-	 *  2. Split into smalls/bigs
-	 *  3. Recursively sort bigs
-	 *  4. Build insertion order (Jacobsthal-based)
-	 *  5. Insert smalls into the sorted bigs (binary search for the position)
-	 *  6. Insert remainder if odd count (binary search for the position)
+	 *  1. Pair up elements (small/big in each pair)
+	 *  2. Recursively sort the big elements
+	 *  3. Reorder small elements to keep pair identity with sorted bigs
+	 *  4. Initialize main chain as [b1, a1, a2, ...]
+	 *  5. Build pend insertion order (Jacobsthal groups, then reverse tail)
+	 *  6. Insert pend elements with bounded binary search (up to partner ai)
 	 * @param &c - reference to the container to sort
 	 */
 	void	_ford_johnson_sort( Container &c );
