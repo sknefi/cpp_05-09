@@ -119,6 +119,8 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector
 	size_t	max_b = pend_count + 1;
 	size_t	prev_j = 1;
 
+	// Sequence of Jacobsthal numbers -> b_n = b_{n-1} + 2 * b_{n-2}
+	// 0 1 1 3 5 11 21 43 85 171 341  ...
 	size_t	j_prev = 0;
 	size_t	j_curr = 1;
 	while (true)

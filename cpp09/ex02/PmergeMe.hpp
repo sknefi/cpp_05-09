@@ -8,6 +8,12 @@
 
 # define DEBUG_VAL 21
 
+/**
+	fj_		-> Ford Johnson
+	rem		-> remainder
+	us		-> micro seconds
+*/
+
 template <typename Container>
 class PmergeMe
 {
@@ -30,6 +36,8 @@ private:
 	/**
 	 * Build pend insertion order (Jacobsthal groups then reverse tail).
 	 * Order is returned as 0-based indices into pend (b2 starts at index 0).
+	 * @param size_t pend_count - the number of pend elements
+	 * @param std::vector<size_t> &seq - reference to the sequence of pend indices
 	 */
 	void	_ford_johnson_sequence( size_t pend_count, std::vector<size_t> &seq ) const;
 	
@@ -41,7 +49,7 @@ private:
 	 *  3. Reorder small elements to keep pair identity with sorted bigs
 	 *  4. Initialize main chain as [b1, a1, a2, ...]
 	 *  5. Build pend insertion order (Jacobsthal groups, then reverse tail)
-	 *  6. Insert pend elements with bounded binary search (up to partner ai)
+	 *  6. Insert pend elements with bounded binary search
 	 * @param &c - reference to the container to sort
 	 */
 	void	_ford_johnson_sort( Container &c );
