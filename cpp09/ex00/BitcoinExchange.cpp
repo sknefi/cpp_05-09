@@ -265,7 +265,7 @@ static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &e
 
 void	BitcoinExchange::_parse_db( std::string const &path )
 {
-	if (path.substr(path.size() - 4) != ".csv") // check if file is .csv
+	if (path.size() < 4 || path.substr(path.size() - 4) != ".csv") // check if file is .csv
 		throw std::runtime_error("File has to be in .csv format");
 	
 	std::ifstream	file(path.c_str());
