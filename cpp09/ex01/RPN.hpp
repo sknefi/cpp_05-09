@@ -8,7 +8,7 @@
 class RPN
 {
 	private:
-		std::stack<double>	_s;
+		std::stack<int>	_s;
 
 	public:
 		RPN();
