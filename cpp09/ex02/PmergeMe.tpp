@@ -43,7 +43,7 @@ template <typename Container>
 static void		debug_print_container( Container const &c, std::string const &label )
 {
 	std::cerr << label << ": ";
-	for (size_t i = 0; i < c.size(); ++i)
+	for (size_t i = 0; i < c.size(); i++)
 		std::cerr << c[i] << " ";
 	std::cerr << std::endl;
 }
@@ -82,7 +82,7 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 	std::string			token;
 	while (iss >> token)
 	{
-		for (size_t i = 0; i < token.size(); ++i)
+		for (size_t i = 0; i < token.size(); i++)
 		{
 			if (!std::isdigit(static_cast<unsigned char>(token[i])))
 				throw ValidationException();
@@ -112,7 +112,7 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector
 {
 	seq.clear();
 	if (pend_count == 0)
-		return;
+		return ;
 	seq.reserve(pend_count);
 
 	// pend indices map to labels [b2, b3, ..., b(max_b)]
@@ -177,16 +177,17 @@ void	PmergeMe<Container>::_insert_pend_to_chain( Container &chain,
 	for (size_t i = 0; i < fj_seq.size(); i++)
 	{
 		size_t	pend_idx = fj_seq[i];
-		bool	is_odd = has_rem && pend_idx == small_pend_count;
+		bool	is_odd = has_rem && pend_idx == small_pend_count; // last element
 		int		value = is_odd ? rem : smalls[pend_idx + 1];
 		size_t	bound = is_odd ? chain.size() : big_pos[pend_idx + 1];
 		size_t	pos = _binary_search_pos(chain, 0, bound, value);
 		chain.insert(chain.begin() + pos, value);
 
-		for (size_t j = 0; j < big_pos.size(); ++j)
+		// increment every index after insertion
+		for (size_t j = 0; j < big_pos.size(); j++)
 		{
 			if (big_pos[j] >= pos)
-				++big_pos[j];
+				big_pos[j]++;
 		}
 	}
 }
@@ -247,7 +248,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	#endif
 
 	// Align smalls with recursively sorted bigs (preserve pair identity)
-	// without associative containers.
+	// because of orig_bigs[i] and smalls[i] is pair 
 	#ifdef DEBUG
 		debug_print_container(orig_bigs, "===orig bigs");
 	#endif
@@ -271,12 +272,12 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		chain.push_back(bigs[i]);
 
 	// Current positions of partner a_i in main chain.
-	std::vector<size_t>	big_pos(bigs.size());
+	std::vector<size_t>		big_pos(bigs.size());
 	for (size_t i = 0; i < bigs.size(); i++)
 		big_pos[i] = i + 1;
 
-	size_t pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);
-	std::vector<size_t>	fj_seq;
+	size_t	pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);
+	std::vector<size_t>		fj_seq;
 	_ford_johnson_sequence(pend_count, fj_seq);
 	_insert_pend_to_chain(chain, fj_seq, sorted_smalls, big_pos, has_rem, rem);
 
@@ -308,7 +309,7 @@ void	PmergeMe<Container>::display( std::string const &label ) const
 
 	if (_data.size() < DEBUG_VAL)
 	{
-		for (size_t i = 0; i < _data.size(); ++i)
+		for (size_t i = 0; i < _data.size(); i++)
 			std::cout << _data[i] << " ";
 	}
 	else
