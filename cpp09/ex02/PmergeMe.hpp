@@ -1,10 +1,18 @@
 #pragma once
 
-#include <vector>
-#include <deque>
-#include <string>
-#include <exception>
-#include <utility>
+# include <vector>
+# include <deque>
+# include <string>
+# include <exception>
+# include <utility>
+
+# define DEBUG_VAL 21
+
+/**
+	fj_		-> Ford Johnson
+	rem		-> remainder
+	us		-> micro seconds
+*/
 
 template <typename Container>
 class PmergeMe
@@ -28,18 +36,20 @@ private:
 	/**
 	 * Build pend insertion order (Jacobsthal groups then reverse tail).
 	 * Order is returned as 0-based indices into pend (b2 starts at index 0).
+	 * @param size_t pend_count - the number of pend elements
+	 * @param std::vector<size_t> &seq - reference to the sequence of pend indices
 	 */
 	void	_ford_johnson_sequence( size_t pend_count, std::vector<size_t> &seq ) const;
 	
 	/**
 	 * Ford-Johnson sort for container.
 	 * Steps:
-	 *  1. Pair up elements (min/max in each pair)
-	 *  2. Split into smalls/bigs
-	 *  3. Recursively sort bigs
-	 *  4. Build insertion order (Jacobsthal-based)
-	 *  5. Insert smalls into the sorted bigs (binary search for the position)
-	 *  6. Insert remainder if odd count (binary search for the position)
+	 *  1. Pair up elements (small/big in each pair)
+	 *  2. Recursively sort the big elements
+	 *  3. Reorder small elements to keep pair identity with sorted bigs
+	 *  4. Initialize main chain as [b1, a1, a2, ...]
+	 *  5. Build pend insertion order (Jacobsthal groups, then reverse tail)
+	 *  6. Insert pend elements with bounded binary search
 	 * @param &c - reference to the container to sort
 	 */
 	void	_ford_johnson_sort( Container &c );
@@ -91,6 +101,7 @@ public:
 	void			set_input( std::string const &input );
 	double			sort();
 	void			display( std::string const &label ) const;
+	bool			is_sorted();
 
 	size_t			size() const;
 	Container const	&get_data() const;

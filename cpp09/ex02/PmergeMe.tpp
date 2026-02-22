@@ -42,12 +42,27 @@ PmergeMe<Container>	&PmergeMe<Container>::operator=( PmergeMe const &other )
 template <typename Container>
 static void		debug_print_container( Container const &c, std::string const &label )
 {
-	std::cout << label << ": ";
-	for (size_t i = 0; i < c.size(); ++i)
-		std::cout << c[i] << " ";
-	std::cout << std::endl;
+	std::cerr << label << ": ";
+	for (size_t i = 0; i < c.size(); i++)
+		std::cerr << c[i] << " ";
+	std::cerr << std::endl;
 }
 #endif
+
+template <typename Container>
+bool	PmergeMe<Container>::is_sorted()
+{
+	if (_data.size() == 1)
+		return true;
+
+	for (size_t i = 1; i < _data.size(); i++)
+	{
+		if (_data[i - 1] > _data[i])
+			return false;
+	}
+	
+	return true;
+}
 
 template <typename Container>
 double	PmergeMe<Container>::_now_us() const
@@ -67,7 +82,7 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 	std::string			token;
 	while (iss >> token)
 	{
-		for (size_t i = 0; i < token.size(); ++i)
+		for (size_t i = 0; i < token.size(); i++)
 		{
 			if (!std::isdigit(static_cast<unsigned char>(token[i])))
 				throw ValidationException();
@@ -80,7 +95,7 @@ void	PmergeMe<Container>::_parse_input( std::string const &input )
 			throw ValidationException();
 		_data.push_back(static_cast<int>(value));
 		#ifdef DEBUG
-			std::cout << "parsed token: " << token << std::endl;
+			std::cerr << "parsed token: " << token << std::endl;
 		#endif
 	}
 
@@ -97,13 +112,15 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector
 {
 	seq.clear();
 	if (pend_count == 0)
-		return;
+		return ;
 	seq.reserve(pend_count);
 
 	// pend indices map to labels [b2, b3, ..., b(max_b)]
 	size_t	max_b = pend_count + 1;
 	size_t	prev_j = 1;
 
+	// Sequence of Jacobsthal numbers -> b_n = b_{n-1} + 2 * b_{n-2}
+	// 0 1 1 3 5 11 21 43 85 171 341  ...
 	size_t	j_prev = 0;
 	size_t	j_curr = 1;
 	while (true)
@@ -117,6 +134,10 @@ void	PmergeMe<Container>::_ford_johnson_sequence( size_t pend_count, std::vector
 			seq.push_back(b - 2);
 		prev_j = j_curr;
 	}
+
+	// Example with max_b = 11 (pend labels b2..b11):
+	// Jacobsthal groups produce: b3,b2 then b5,b4 then b11,b10,b9,b8,b7,b6
+	// Stored as 0-based pend indices: 1,0,3,2,9,8,7,6,5,4
 	for (size_t b = max_b; b > prev_j; --b)
 		seq.push_back(b - 2);
 
@@ -155,19 +176,20 @@ void	PmergeMe<Container>::_insert_pend_to_chain( Container &chain,
 {
 	size_t	small_pend_count = smalls.size() > 0 ? smalls.size() - 1 : 0;
 
-	for (size_t i = 0; i < fj_seq.size(); ++i)
+	for (size_t i = 0; i < fj_seq.size(); i++)
 	{
 		size_t	pend_idx = fj_seq[i];
-		bool	is_odd = has_rem && pend_idx == small_pend_count;
+		bool	is_odd = has_rem && pend_idx == small_pend_count; // last element
 		int		value = is_odd ? rem : smalls[pend_idx + 1];
 		size_t	bound = is_odd ? chain.size() : big_pos[pend_idx + 1];
 		size_t	pos = _binary_search_pos(chain, 0, bound, value);
 		chain.insert(chain.begin() + pos, value);
 
-		for (size_t j = 0; j < big_pos.size(); ++j)
+		// increment every index after insertion
+		for (size_t j = 0; j < big_pos.size(); j++)
 		{
 			if (big_pos[j] >= pos)
-				++big_pos[j];
+				big_pos[j]++;
 		}
 	}
 }
@@ -182,7 +204,7 @@ size_t	PmergeMe<Container>::_binary_search_pos( Container const &c,
 	{
 		size_t	mid = left + (right - left) / 2;
 		#ifdef DEBUG
-			if (c.size() <= 21)
+			if (c.size() <= DEBUG_VAL)
 			{
 				std::cerr << "[cmp] c[" << mid << "]=" << c[mid]
 						<< " < " << value << " ?  (range [" << left << ", " << right << "))\n";
@@ -203,7 +225,7 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		return;
 
 	#ifdef DEBUG
-		std::cout << "---- ford_johnson_sort size=" << c.size() << " ----" << std::endl;
+		std::cerr << "---- ford_johnson_sort size=" << c.size() << " ----" << std::endl;
 		debug_print_container(c, "input");
 	#endif
 
@@ -212,13 +234,13 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	Container	smalls;
 	Container	bigs;
 	_create_pairs(c, has_rem, rem, smalls, bigs);
-	Container	orig_bigs = bigs;
+	Container	orig_bigs = bigs; // orig_bigs[i] and smalls[i] is pair 
 
 	#ifdef DEBUG
 		debug_print_container(smalls, "smalls");
 		debug_print_container(bigs, "bigs (pre-rec)");
 		if (has_rem)
-			std::cout << "remainder: " << rem << std::endl;
+			std::cerr << "remainder: " << rem << std::endl;
 	#endif
 	
 	_ford_johnson_sort(bigs);
@@ -228,35 +250,36 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 	#endif
 
 	// Align smalls with recursively sorted bigs (preserve pair identity)
-	// without associative containers.
+	// because of orig_bigs[i] and smalls[i] is pair 
+	#ifdef DEBUG
+		debug_print_container(orig_bigs, "===orig bigs");
+	#endif
 	Container	sorted_smalls;
-	for (size_t i = 0; i < bigs.size(); ++i)
+	for (size_t i = 0; i < bigs.size(); i++)
 	{
 		size_t	orig_idx = 0;
 		while (orig_idx < orig_bigs.size())
 		{
 			if (orig_bigs[orig_idx] == bigs[i])
 				break;
-			++orig_idx;
+			orig_idx++;
 		}
-		if (orig_idx == orig_bigs.size())
-			throw ValidationException();
 		sorted_smalls.push_back(smalls[orig_idx]);
 	}
 
 	// Canonical main chain initialization: [b1, a1, a2, ...]
 	Container	chain;
 	chain.push_back(sorted_smalls[0]);
-	for (size_t i = 0; i < bigs.size(); ++i)
+	for (size_t i = 0; i < bigs.size(); i++)
 		chain.push_back(bigs[i]);
 
 	// Current positions of partner a_i in main chain.
-	std::vector<size_t>	big_pos(bigs.size());
-	for (size_t i = 0; i < bigs.size(); ++i)
+	std::vector<size_t>		big_pos(bigs.size());
+	for (size_t i = 0; i < bigs.size(); i++)
 		big_pos[i] = i + 1;
 
-	size_t pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);
-	std::vector<size_t>	fj_seq;
+	size_t	pend_count = sorted_smalls.size() - 1 + (has_rem ? 1 : 0);
+	std::vector<size_t>		fj_seq;
 	_ford_johnson_sequence(pend_count, fj_seq);
 	_insert_pend_to_chain(chain, fj_seq, sorted_smalls, big_pos, has_rem, rem);
 
@@ -285,8 +308,14 @@ template <typename Container>
 void	PmergeMe<Container>::display( std::string const &label ) const
 {
 	std::cout << label << ": ";
-	for (size_t i = 0; i < _data.size(); ++i)
-		std::cout << _data[i] << " ";
+
+	if (_data.size() < DEBUG_VAL)
+	{
+		for (size_t i = 0; i < _data.size(); i++)
+			std::cout << _data[i] << " ";
+	}
+	else
+		std::cout << "[...]";
 	std::cout << std::endl;
 }
 
