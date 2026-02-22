@@ -156,6 +156,32 @@ static bool		validate_value( std::string const &s, double &out )
 	if (t.empty())
 		return false;
 
+	size_t	i = 0;
+	if (t[i] == '+' || t[i] == '-')
+		++i;
+	if (i >= t.size())
+		return false;
+
+	bool	has_digit = false;
+	bool	has_dot = false;
+	for (; i < t.size(); ++i)
+	{
+		char c = t[i];
+		if (std::isdigit(static_cast<unsigned char>(c)))
+		{
+			has_digit = true;
+			continue;
+		}
+		if (c == '.' && !has_dot)
+		{
+			has_dot = true;
+			continue;
+		}
+		return false;
+	}
+	if (!has_digit)
+		return false;
+
 	char	*end = 0;
 	out = std::strtod(t.c_str(), &end);
 
@@ -224,7 +250,7 @@ static void		parse_db_line( std::string const &line, Date &date, ExchangeRate &e
 {
 	size_t	comma = line.find(',');
 	if (comma == std::string::npos) // no comma
-		throw std::runtime_error("Invalid line, NO coloumns - " + line);
+		throw std::runtime_error("Invalid line, missing columns - " + line);
 	
 	date = trim(line.substr(0, comma));
 	std::string		ex_rate_str = trim(line.substr(comma + 1));
@@ -244,12 +270,12 @@ void	BitcoinExchange::_parse_db( std::string const &path )
 	
 	std::ifstream	file(path.c_str());
 	if (!file.is_open())
-		throw std::runtime_error("DB (.csv file) could NOT be opened");
+		throw std::runtime_error("DB (.csv file) could not be opened");
 	
-	std::string		coloumns;
-	getline(file, coloumns);
-	if (trim(coloumns) != CSV_VALID_COLOUMNS)
-		throw std::runtime_error("DB (.csv file) has invalid coloumns");
+	std::string		columns;
+	getline(file, columns);
+	if (trim(columns) != CSV_VALID_COLOUMNS)
+		throw std::runtime_error("DB (.csv file) has invalid columns");
 	
 	std::string		line;
 	while (getline(file, line))
@@ -306,7 +332,15 @@ static std::string	bad_input_token( std::string const &line )
 	size_t pipe = line.find('|');
 	if (pipe == std::string::npos)
 		return trim(line);
-	return trim(line.substr(0, pipe));
+	std::string		date_token = trim(line.substr(0, pipe));
+	std::string		value_token = trim(line.substr(pipe + 1));
+	double			dummy_value;
+
+	if (!validate_date(date_token))
+		return date_token;
+	if (!validate_value(value_token, dummy_value))
+		return value_token;
+	return date_token;
 }
 
 void	BitcoinExchange::_process_input_file( std::string const &path ) const
@@ -315,11 +349,17 @@ void	BitcoinExchange::_process_input_file( std::string const &path ) const
 	if (!file.is_open())
 		throw std::runtime_error("could not open file.");
 
-	std::string		line;
-	if (!getline(file, line))
+	std::string	line;
+	while (getline(file, line))
+	{
+		if (!trim(line).empty())
+			break ;
+	}
+	if (file.eof() && trim(line).empty())
 		throw std::runtime_error("could not open file.");
 	if (trim(line) != INPUT_FILE_HEADER)
-		throw std::runtime_error("bad input => " + line);
+		throw std::runtime_error("input file has invalid columns definition => " + line);
+	
 	while (getline(file, line))
 	{
 		if (line.empty())
