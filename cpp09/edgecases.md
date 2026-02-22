@@ -67,12 +67,12 @@ CPP09 Edge Cases (ex00 + ex01)
 ```
 
 ### Test Linux
-```
+```bash
 ./PmergeMe `shuf -i 1-100000 -n 3000 | tr "\n" " "`
 ```
 
 ### Get count of comparisions
-```
+```bash
 ./PmergeMe $(shuf -i 1-1000 -n 21) 2>&1 | grep -c '^\[cmp\]'
 ```
 2>&1 because all debugs are in cerr (standard error)
