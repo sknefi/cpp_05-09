@@ -18,7 +18,8 @@ template <typename Container>
 class PmergeMe
 {
 private:
-	Container	_data;
+	Container		_data;
+	mutable size_t	_comparisons;
 
 	/**
 	 * Get the current time in microseconds
@@ -89,6 +90,21 @@ private:
 	 * @return the position of the value in the container
 	 */
 	size_t	_binary_search_pos( Container const &c, size_t left, size_t right, int value ) const;
+	
+	/**
+	 * Compare two integers and increment the comparisons counter
+	 * @param int lhs - the left integer
+	 * @param int rhs - the right integer
+	 * @return true if lhs is less than rhs, false otherwise
+	 */
+	bool	_less( int lhs, int rhs ) const;
+
+	/**
+	 * Calculate the comparison bound for the given number of elements
+	 * @param size_t n - the number of elements
+	 * @return the comparison bound
+	 */
+	size_t	_comparison_bound( size_t n ) const;
 
 public:
 	PmergeMe();
@@ -102,6 +118,8 @@ public:
 	double			sort();
 	void			display( std::string const &label ) const;
 	bool			is_sorted();
+	size_t			get_comparisons() const;
+	size_t			get_comparison_bound() const;
 
 	size_t			size() const;
 	Container const	&get_data() const;
