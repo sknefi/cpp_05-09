@@ -53,7 +53,11 @@ int		main( int argc, char *argv[] )
 				  << deq_time
 				  << " us" << std::endl;
 
-		#ifdef DEBUG		
+		#ifdef DEBUG
+			std::cerr << "vector comparisons: " << vec_sorter.get_comparisons()
+					  << " / bound: " << vec_sorter.get_comparison_bound() << std::endl;
+			std::cerr << "deque comparisons: " << deq_sorter.get_comparisons()
+					  << " / bound: " << deq_sorter.get_comparison_bound() << std::endl;
 			std::cerr << ((vec_sorter.is_sorted() && deq_sorter.is_sorted()) ? "OK" : "WRONG") << std::endl;
 		#endif
 	}

@@ -11,11 +11,13 @@
 template <typename Container>
 PmergeMe<Container>::PmergeMe()
 {
+	_comparisons = 0;
 }
 
 template <typename Container>
 PmergeMe<Container>::PmergeMe( std::string const &input )
 {
+	_comparisons = 0;
 	_parse_input(input);
 }
 
@@ -34,7 +36,10 @@ template <typename Container>
 PmergeMe<Container>	&PmergeMe<Container>::operator=( PmergeMe const &other )
 {
 	if (this != &other)
+	{
 		_data = other._data;
+		_comparisons = other._comparisons;
+	}
 	return *this;
 }
 
@@ -156,8 +161,18 @@ void	PmergeMe<Container>::_create_pairs( Container const &c, bool &has_rem, int 
 	size_t	i = 0;
 	while (i + 1 < c.size())
 	{
-		int	lo = std::min(c[i], c[i + 1]);
-		int	hi = std::max(c[i], c[i + 1]);
+		int lo;
+		int hi;
+		if (_less(c[i], c[i + 1]))
+		{
+			lo = c[i];
+			hi = c[i + 1];
+		}
+		else
+		{
+			lo = c[i + 1];
+			hi = c[i];
+		}
 		smalls.push_back(lo);
 		bigs.push_back(hi);
 		i += 2;
@@ -210,12 +225,35 @@ size_t	PmergeMe<Container>::_binary_search_pos( Container const &c,
 						<< " < " << value << " ?  (range [" << left << ", " << right << "))\n";
 			}
 		#endif
-		if (c[mid] < value)
+		if (_less(c[mid], value))
 			left = mid + 1;
 		else
 			right = mid;
 	}
 	return left;
+}
+
+template <typename Container>
+bool	PmergeMe<Container>::_less( int lhs, int rhs ) const
+{
+	_comparisons++;
+	return lhs < rhs;
+}
+
+template <typename Container>
+size_t	PmergeMe<Container>::_comparison_bound( size_t n ) const
+{
+	size_t	total = 0;
+	for (size_t k = 1; k <= n; k++)
+	{
+		size_t	threshold_num = 3 * k; // ceil(log2(3k/4))
+		size_t	threshold_den = 4;
+		size_t	p = 0;
+		while (((size_t)1 << p) * threshold_den < threshold_num)
+			p++;
+		total += p;
+	}
+	return total;
 }
 
 template <typename Container>
@@ -261,7 +299,10 @@ void	PmergeMe<Container>::_ford_johnson_sort( Container &c )
 		while (orig_idx < orig_bigs.size())
 		{
 			if (orig_bigs[orig_idx] == bigs[i])
+			{
+				// _comparisons++;
 				break;
+			}
 			orig_idx++;
 		}
 		sorted_smalls.push_back(smalls[orig_idx]);
@@ -299,6 +340,7 @@ void	PmergeMe<Container>::set_input( std::string const &input )
 template <typename Container>
 double	PmergeMe<Container>::sort()
 {
+	_comparisons = 0;
 	double	start = _now_us();
 	_ford_johnson_sort(_data);
 	return _now_us() - start;
@@ -323,6 +365,18 @@ template <typename Container>
 size_t	PmergeMe<Container>::size() const
 {
 	return _data.size();
+}
+
+template <typename Container>
+size_t	PmergeMe<Container>::get_comparisons() const
+{
+	return _comparisons;
+}
+
+template <typename Container>
+size_t	PmergeMe<Container>::get_comparison_bound() const
+{
+	return _comparison_bound(_data.size());
 }
 
 template <typename Container>
